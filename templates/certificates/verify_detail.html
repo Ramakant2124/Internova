@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Certificate Verification Result{% endblock %}
+{% block auth_content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="text-center mb-4">
+            <h1 class="fs-3 fw-bold"><i class="bi bi-patch-check me-2"></i>Verification Result</h1>
+            <p class="text-muted small">Certificate: <strong>{{ search_number }}</strong></p>
+        </div>
+
+        {% if certificate %}
+        <div class="alert alert-success">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-check-circle-fill fs-3 me-3"></i>
+                <div>
+                    <strong>Certificate verified successfully.</strong>
+                    <div class="small">This certificate number exists in the system.</div>
+                </div>
+            </div>
+        </div>
+        <table class="table table-sm table-bordered">
+            <tr><th class="w-50">Certificate Number</th><td>{{ certificate.certificate_number }}</td></tr>
+            <tr><th>Student Name</th><td>{{ certificate.student.full_name }}</td></tr>
+            <tr><th>Company</th><td>{{ certificate.company.company_name }}</td></tr>
+            <tr><th>Internship</th><td>{{ certificate.internship.title }}</td></tr>
+            <tr><th>Internship Period</th><td>{{ certificate.start_date|default:'-' }} to {{ certificate.end_date|default:'-' }}</td></tr>
+            <tr><th>Issue Date</th><td>{{ certificate.issue_date|default:'-' }}</td></tr>
+            <tr><th>Verification Status</th>
+                <td>
+                    {% if certificate.verification_status == 'VERIFIED' %}
+                    <span class="badge bg-success">Verified</span>
+                    {% elif certificate.verification_status == 'REJECTED' %}
+                    <span class="badge bg-danger">Rejected</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark">Pending Verification</span>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+        {% else %}
+        <div class="alert alert-danger">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-x-circle-fill fs-3 me-3"></i>
+                <div>
+                    <strong>Certificate not found.</strong>
+                    <div class="small">The certificate number you entered could not be verified. Please check the number and try again.</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="d-grid gap-2 mt-3">
+            <a href="{% url 'certificates:verify_page' %}" class="btn btn-outline-primary"><i class="bi bi-search me-1"></i>Verify Another</a>
+            <a href="{% url 'accounts:home' %}" class="btn btn-link btn-sm">Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

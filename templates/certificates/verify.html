@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Verify Certificate{% endblock %}
+{% block auth_content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="text-center mb-4">
+            <h1 class="fs-3 fw-bold"><i class="bi bi-patch-check-fill me-2"></i>Certificate Verification</h1>
+            <p class="text-muted small mb-0">Verify the authenticity of an internship certificate</p>
+        </div>
+        <form method="get" action="{% url 'certificates:verify_detail' 'lookup' %}" class="mb-3" id="verifyForm" novalidate>
+            <div class="input-group">
+                <input type="text" id="certNumber" class="form-control" placeholder="e.g. INT-2026-000001" aria-label="Certificate number">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>Verify</button>
+            </div>
+            <div class="form-text mt-2">Enter the full certificate number printed on the certificate (e.g. INT-2026-000001).</div>
+        </form>
+        <div class="text-center mt-4">
+            <a href="{% url 'accounts:home' %}" class="btn btn-link btn-sm">Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    document.getElementById('verifyForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const num = document.getElementById('certNumber').value.trim();
+        if (!num) return;
+        window.location.href = "{% url 'certificates:verify_detail' 'lookup' %}".replace('lookup', encodeURIComponent(num));
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}My Documents{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <h4 class="mb-3"><i class="bi bi-folder2-open me-2"></i>Documents</h4>
+    {% if form %}
+    <div class="form-card mb-4">
+        <div class="form-card-header">
+            <h5><i class="bi bi-cloud-arrow-up"></i> Upload Document</h5>
+            <p class="form-subtitle">Supported formats: PDF, DOC, XLSX, PNG, JPG, TXT (max 5 MB)</p>
+        </div>
+        <div class="form-card-body">
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                {% include 'partials/form_field.html' %}
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">You are not allocated to an internship.</div>
+    {% endif %}
+
+    <div class="form-card">
+        <div class="form-card-header">
+            <h5><i class="bi bi-folder2-open"></i> My Documents</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead><tr><th>Title</th><th>Type</th><th>Uploaded</th><th>Status</th><th>Verification</th><th></th></tr></thead>
+                <tbody>
+                    {% for d in documents %}
+                    <tr>
+                        <td>{{ d.title }}</td>
+                        <td><span class="badge bg-secondary">{{ d.get_document_type_display }}</span></td>
+                        <td class="small">{{ d.uploaded_at|date:"M d, Y" }}</td>
+                        <td>{% include 'partials/status_badge.html' with status=d.status %}</td>
+                        <td class="small">{{ d.verification_comments|default:'-' }}</td>
+                        <td>
+                            {% if d.file %}<a href="{% url 'documents:download' d.pk %}" class="btn btn-sm btn-outline-primary" target="_blank">View</a>{% endif %}
+                            {% if d.status == 'PENDING' %}
+                            <form method="post" action="{% url 'students:document_delete' d.pk %}" class="d-inline" onsubmit="return confirm('Delete this document?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}<tr><td colspan="6" class="text-center text-muted">No documents uploaded.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+    </div>
+</div>
+{% endblock %}

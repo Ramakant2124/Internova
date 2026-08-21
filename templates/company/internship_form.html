@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}{% if editing %}Edit Internship{% else %}Post Internship{% endif %}{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h5><i class="bi bi-briefcase"></i> {% if editing %}Edit Internship{% else %}Post New Internship{% endif %}</h5>
+                    <p class="form-subtitle">{% if editing %}Update the internship listing details{% else %}Create a new internship opportunity for students{% endif %}</p>
+                </div>
+                <div class="form-card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {% with form_grid=True %}
+                        {% include 'partials/form_field.html' %}
+                        {% endwith %}
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">{% if editing %}<i class="bi bi-check-lg"></i> Save Changes{% else %}<i class="bi bi-send"></i> Post Internship{% endif %}</button>
+                            <a href="{% url 'companies:internships' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                    <div class="form-info-box">
+                        <i class="bi bi-info-circle"></i>
+                        <span>New internships start in "Applied" status and must be approved by the college before students can apply.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

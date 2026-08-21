@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}{{ student.full_name }}{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h4 class="mb-0">{{ student.full_name }}</h4>
+        <div class="d-flex gap-2">
+            <a href="{% url 'companies:task_assign' %}?student={{ student.pk }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle me-1"></i>Assign Task</a>
+            <a href="{% url 'companies:feedback_create' student.pk %}" class="btn btn-sm btn-outline-info"><i class="bi bi-chat-heart me-1"></i>Feedback</a>
+            <a href="{% url 'companies:certificate_upload' student.pk %}" class="btn btn-sm btn-outline-success"><i class="bi bi-patch-check me-1"></i>Upload Certificate</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white"><strong>Details</strong></div>
+                <div class="card-body small">
+                    <div class="mb-2"><strong>Student ID:</strong> {{ student.student_id }}</div>
+                    <div class="mb-2"><strong>Email:</strong> {{ student.email }}</div>
+                    <div class="mb-2"><strong>College:</strong> {{ student.college.college_name|default:'-' }}</div>
+                    <div class="mb-2"><strong>Department:</strong> {{ student.department|default:'-' }}</div>
+                    <div class="mb-2"><strong>Year:</strong> {{ student.year|default:'-' }}</div>
+                    {% if internship %}
+                    <hr>
+                    <div class="mb-2"><strong>Internship:</strong> {{ internship.title }}</div>
+                    {% include 'partials/status_badge.html' with status=internship.status %}
+                    {% endif %}
+                    {% if supervisor_assignment %}
+                    <hr>
+                    <div class="mb-2"><strong>Supervisor:</strong> {{ supervisor_assignment.supervisor.name }}</div>
+                    <div class="mb-2 small text-muted">{{ supervisor_assignment.supervisor.designation|default:'' }}</div>
+                    {% endif %}
+                    {% if certificate %}
+                    <hr>
+                    <div class="mb-2"><strong>Certificate:</strong> {{ certificate.certificate_number }}</div>
+                    {% include 'partials/status_badge.html' with status=certificate.verification_status %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="row">
+                {% include 'partials/dashboard_card.html' with title='Pending Tasks' value=pending_tasks icon='bi-hourglass-split' color='warning' %}
+                {% include 'partials/dashboard_card.html' with title='Avg Weekly Progress' value=weekly_avg|floatformat:1|add:'%' icon='bi-graph-up' color='success' %}
+                {% include 'partials/dashboard_card.html' with title='Status' value=internship.status|default:'-' icon='bi-flag' color='info' %}
+            </div>
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white"><strong>Assign / Change Supervisor</strong></div>
+                <div class="card-body">
+                    {% if internship %}
+                    <p class="small text-muted">
+                        The supervisor manages this intern's attendance and tasks from the
+                        Supervisor Portal.{% if supervisor_assignment %} Currently assigned:
+                        <strong>{{ supervisor_assignment.supervisor.name }}</strong>.{% endif %}
+                    </p>
+                    <form method="post" action="{% url 'companies:student_assign_supervisor' student.pk %}" class="row g-2 align-items-end">
+                        {% csrf_token %}
+                        <div class="col-md-8">
+                            <label class="form-label small">{{ supervisor_form.supervisor.label }}</label>
+                            {{ supervisor_form.supervisor }}
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-person-check me-1"></i>{% if supervisor_assignment %}Change{% else %}Assign{% endif %} Supervisor
+                            </button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <p class="text-muted small mb-0">No active internship allocation.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white"><strong>Recent Feedback</strong></div>
+                <ul class="list-group list-group-flush">
+                    {% for f in feedback %}
+                    <li class="list-group-item">
+                        <span class="badge bg-danger">{{ f.get_feedback_type_display }}</span>
+                        {% if f.rating %}<span class="text-warning ms-1">{% for i in "12345" %}{% if forloop.counter <= f.rating %}★{% else %}☆{% endif %}{% endfor %}</span>{% endif %}
+                        <p class="mb-0 mt-1 small">{{ f.comments|default:'No comments.' }}</p>
+                        <small class="text-muted">{{ f.created_at|date:"M d, Y" }}</small>
+                    </li>
+                    {% empty %}<li class="list-group-item text-muted">No feedback yet.</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

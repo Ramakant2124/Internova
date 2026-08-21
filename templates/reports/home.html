@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <h4 class="mb-3"><i class="bi bi-file-earmark-bar-graph me-2"></i>Reports</h4>
+    <div class="row">
+        {% for key, label in report_types.items %}
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-file-earmark-text me-2 text-primary"></i>{{ label }}</h5>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'reports:report_detail' key %}" class="btn btn-sm btn-primary">View</a>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">Export</button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'reports:report_export' key 'csv' %}">CSV</a></li>
+                                <li><a class="dropdown-item" href="{% url 'reports:report_export' key 'xlsx' %}">Excel (XLSX)</a></li>
+                                <li><a class="dropdown-item" href="{% url 'reports:report_export' key 'pdf' %}">PDF</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% if user.role == 'COLLEGE' or user.role == 'FACULTY' %}
+    <div class="alert alert-info mt-2">
+        <i class="bi bi-graph-up me-2"></i>Explore interactive charts on the
+        <a href="{% url 'reports:analytics' %}" class="alert-link">Analytics</a> page.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

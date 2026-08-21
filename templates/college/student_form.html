@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}{% if editing %}Edit Student{% else %}Add Student{% endif %}{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h5><i class="bi bi-person-plus"></i> {% if editing %}Edit Student{% else %}Add New Student{% endif %}</h5>
+                    <p class="form-subtitle">{% if editing %}Update the student's profile information{% else %}Create a new student account and profile{% endif %}</p>
+                </div>
+                <div class="form-card-body">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        {% with form_grid=True %}
+                        {% include 'partials/form_field.html' %}
+                        {% endwith %}
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">{% if editing %}<i class="bi bi-check-lg"></i> Save Changes{% else %}<i class="bi bi-plus-circle"></i> Create Student{% endif %}</button>
+                            <a href="{% url 'college:students' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                    {% if not editing %}
+                    <div class="form-info-box">
+                        <i class="bi bi-info-circle"></i>
+                        <span>You set the initial password. The student can change it after first login.</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

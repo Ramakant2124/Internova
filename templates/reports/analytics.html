@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Analytics{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h4 class="mb-0"><i class="bi bi-graph-up me-2"></i>Analytics</h4>
+        <form class="d-flex gap-2">
+            <select id="statusFilter" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="APPLIED">Applied</option>
+                <option value="APPROVED">Approved</option>
+                <option value="ALLOCATED">Allocated</option>
+                <option value="ACTIVE">Active</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="CANCELLED">Cancelled</option>
+            </select>
+            <button type="button" class="btn btn-primary" id="refreshBtn"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+        </form>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white"><strong>Internships by Status</strong></div>
+                <div class="card-body"><canvas id="statusChart" height="180"></canvas></div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white"><strong>Attendance by Status</strong></div>
+                <div class="card-body"><canvas id="attendanceChart" height="180"></canvas></div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white"><strong>Top Companies by Allocations</strong></div>
+                <div class="card-body"><canvas id="companyChart" height="180"></canvas></div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white"><strong>Top Students by Avg Progress</strong></div>
+                <div class="card-body"><canvas id="studentChart" height="180"></canvas></div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white"><strong>Completed vs Active</strong></div>
+                <div class="card-body"><canvas id="completeChart" height="180"></canvas></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    let chart1, chart2, chart3, chart4, chart5;
+    const palette = ['#0d6efd', '#6f42c1', '#fd7e14', '#198754', '#dc3545', '#ffc107', '#20c997', '#6c757d'];
+
+    function loadData() {
+        const status = document.getElementById('statusFilter').value;
+        fetch("{% url 'reports:analytics_data' %}" + (status ? '?status=' + encodeURIComponent(status) : ''))
+            .then(r => r.json())
+            .then(d => {
+                chart1 = chart1 || new Chart(document.getElementById('statusChart'), { type: 'bar' });
+                chart1.data.labels = d.status_counts.map(x => x.status);
+                chart1.data.datasets = [{ label: 'Internships', data: d.status_counts.map(x => x.count), backgroundColor: palette }];
+                chart1.update();
+
+                chart2 = chart2 || new Chart(document.getElementById('attendanceChart'), { type: 'pie' });
+                chart2.data.labels = d.attendance_counts.map(x => x.status);
+                chart2.data.datasets = [{ data: d.attendance_counts.map(x => x.count), backgroundColor: palette }];
+                chart2.update();
+
+                chart3 = chart3 || new Chart(document.getElementById('companyChart'), { type: 'bar', options: { indexAxis: 'y' } });
+                chart3.data.labels = d.company_wise.map(x => x['internship__company__company_name']);
+                chart3.data.datasets = [{ label: 'Allocations', data: d.company_wise.map(x => x.count), backgroundColor: '#0d6efd' }];
+                chart3.update();
+
+                chart4 = chart4 || new Chart(document.getElementById('studentChart'), { type: 'bar', options: { indexAxis: 'y' } });
+                chart4.data.labels = d.student_progress.map(x => x['student__full_name']);
+                chart4.data.datasets = [{ label: 'Avg Progress %', data: d.student_progress.map(x => x['avg']), backgroundColor: '#198754' }];
+                chart4.update();
+
+                chart5 = chart5 || new Chart(document.getElementById('completeChart'), { type: 'doughnut' });
+                chart5.data.labels = ['Completed', 'Active'];
+                chart5.data.datasets = [{ data: [d.completed_vs_active.completed, d.completed_vs_active.active], backgroundColor: ['#198754', '#0d6efd'] }];
+                chart5.update();
+            });
+    }
+    document.getElementById('refreshBtn').addEventListener('click', loadData);
+    loadData();
+</script>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Approvals{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <h4 class="mb-3"><i class="bi bi-check2-square me-2"></i>Pending Approvals</h4>
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead><tr><th>Type</th><th>Details</th><th>Requested By</th><th>Requested At</th><th>Decision</th></tr></thead>
+                <tbody>
+                    {% for a in approvals %}
+                    <tr>
+                        <td><span class="badge bg-info">{{ a.get_approval_type_display }}</span></td>
+                        <td>
+                            <strong>{{ a.content_object|truncatechars:50 }}</strong>
+                            {% if a.content_object %}
+                            <div class="small text-muted">
+                                {% if a.content_object.student %}{{ a.content_object.student.full_name }} · {% endif %}
+                                {% if a.content_object.student.internship %}{{ a.content_object.student.internship.title }}{% elif a.content_object.internship %}{{ a.content_object.internship.title }}{% endif %}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="small">{{ a.requested_by.display_name|default:'-' }}</td>
+                        <td class="small">{{ a.created_at|date:"M d, Y H:i" }}</td>
+                        <td style="min-width: 220px;">
+                            <form method="post" action="{% url 'college:approval_action' a.pk %}" class="d-flex gap-1">
+                                {% csrf_token %}
+                                <button type="submit" name="decision" value="approve" class="btn btn-sm btn-success">Approve</button>
+                                <input type="text" name="comments" class="form-control form-control-sm" placeholder="Comments">
+                                <button type="submit" name="decision" value="reject" class="btn btn-sm btn-outline-danger">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}<tr><td colspan="5" class="text-center text-muted">No pending approvals.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+    </div>
+</div>
+{% endblock %}

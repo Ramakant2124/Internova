@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Feedback{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <h4 class="mb-3"><i class="bi bi-chat-heart me-2"></i>My Feedback</h4>
+    <div class="row">
+        {% for f in feedback %}
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge bg-{% if f.feedback_type == 'FACULTY' %}primary{% elif f.feedback_type == 'COMPANY' %}danger{% else %}success{% endif %}">{{ f.get_feedback_type_display }}</span>
+                            {% if f.rating %}<span class="text-warning ms-1">{% for i in "12345" %}{% if forloop.counter <= f.rating %}★{% else %}☆{% endif %}{% endfor %}</span>{% endif %}
+                        </div>
+                        <small class="text-muted">{{ f.created_at|date:"M d, Y" }}</small>
+                    </div>
+                    {% if f.comments %}<p class="mt-2 mb-0">{{ f.comments|linebreaksbr }}</p>{% else %}<p class="text-muted small mt-2 mb-0">No comments.</p>{% endif %}
+                    {% if f.internship %}<small class="text-muted d-block mt-2">Internship: {{ f.internship.title }}</small>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12"><div class="alert alert-info">No feedback yet.</div></div>
+        {% endfor %}
+    </div>
+    {% include 'partials/pagination.html' %}
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Completion{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <h4 class="mb-3"><i class="bi bi-flag me-2"></i>Internship Completion</h4>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                {% for val, label in internship_statuses %}<option value="{{ val }}" {% if status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2"><button class="btn btn-outline-primary">Filter</button></div>
+    </form>
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead><tr><th>Student</th><th>Internship</th><th>Start</th><th>End</th><th>Internship Status</th><th>Completion</th></tr></thead>
+                <tbody>
+                    {% for a in allocations %}
+                    <tr>
+                        <td><a href="{% url 'companies:student_detail' a.student.pk %}">{{ a.student.full_name }}</a></td>
+                        <td>{{ a.internship.title }}</td>
+                        <td class="small">{{ a.start_date|default:'-' }}</td>
+                        <td class="small">{{ a.end_date|default:'-' }}</td>
+                        <td>{% include 'partials/status_badge.html' with status=a.internship.status %}</td>
+                        <td>
+                            {% if a.internship.status == 'ACTIVE' %}
+                            <form method="post" action="{% url 'companies:completion_request' a.pk %}" class="d-flex gap-1">
+                                {% csrf_token %}
+                                <input type="text" name="reason" class="form-control form-control-sm" placeholder="Reason (optional)">
+                                <button type="submit" class="btn btn-sm btn-primary" onclick="return confirm('Submit completion request for college approval?');">Mark Completed</button>
+                            </form>
+                            {% else %}<span class="text-muted small">{{ a.internship.get_status_display }}</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}<tr><td colspan="6" class="text-center text-muted">No active allocations.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+    </div>
+</div>
+{% endblock %}

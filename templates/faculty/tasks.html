@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Tasks{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h4 class="mb-0"><i class="bi bi-list-check me-2"></i>Intern Task Progress</h4>
+    </div>
+    <div class="alert alert-info small">
+        <i class="bi bi-eye me-1"></i>
+        View-only monitoring. Tasks are created by the company and managed by the
+        assigned supervisor. Faculty cannot assign, edit or review tasks.
+    </div>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                {% for val, label in task_statuses %}<option value="{{ val }}" {% if status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2"><button class="btn btn-outline-primary">Filter</button></div>
+    </form>
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead><tr><th>Title</th><th>Description</th><th>Student</th><th>Supervisor</th><th>Status</th><th>Progress</th><th>Start</th><th>Due</th></tr></thead>
+                <tbody>
+                    {% for t in tasks %}
+                    <tr>
+                        <td>{{ t.title }}</td>
+                        <td class="small">{{ t.description|default:'-'|truncatechars:40 }}</td>
+                        <td><a href="{% url 'faculty:student_detail' t.student.pk %}">{{ t.student.full_name }}</a></td>
+                        <td class="small">{{ t.supervisor.name|default:'-' }}</td>
+                        <td>{% include 'partials/status_badge.html' with status=t.status %}</td>
+                        <td style="min-width: 100px;">
+                            <div class="progress" style="height: 12px;">
+                                <div class="progress-bar bg-success" style="width: {{ t.progress_percentage }}%">{{ t.progress_percentage }}%</div>
+                            </div>
+                        </td>
+                        <td class="small">{{ t.start_date|default:'-' }}</td>
+                        <td class="small {% if t.is_overdue %}text-danger fw-bold{% endif %}">{{ t.due_date|default:'-' }}</td>
+                    </tr>
+                    {% empty %}<tr><td colspan="8" class="text-center text-muted">No tasks found.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+    </div>
+</div>
+{% endblock %}

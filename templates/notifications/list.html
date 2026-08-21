@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0"><i class="bi bi-bell me-2"></i>Notifications</h4>
+        <div class="d-flex gap-2">
+            <form method="post" action="{% url 'notifications:mark_all_read' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-primary">Mark all as read</button>
+            </form>
+            <form method="post" action="{% url 'notifications:clear_all' %}" onsubmit="return confirm('Clear all notifications?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">Clear all</button>
+            </form>
+        </div>
+    </div>
+    <div class="card shadow-sm border-0">
+        <div class="list-group list-group-flush">
+            {% for n in notifications %}
+            <a href="{% url 'notifications:mark_read' n.pk %}" class="list-group-item list-group-item-action d-flex gap-3 {% if not n.is_read %}bg-light{% endif %}">
+                <i class="bi {% if n.is_read %}bi-check-circle text-muted{% else %}bi-exclamation-circle text-primary{% endif %} fs-5 mt-1"></i>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ n.title }}</strong>
+                        <small class="text-muted">{{ n.created_at|timesince }} ago</small>
+                    </div>
+                    <div class="text-muted small">{{ n.message }}</div>
+                    <span class="badge bg-secondary">{{ n.get_notification_type_display }}</span>
+                </div>
+            </a>
+            {% empty %}
+            <div class="list-group-item text-center text-muted py-5">No notifications</div>
+            {% endfor %}
+        </div>
+    </div>
+    {% include 'partials/pagination.html' %}
+</div>
+{% endblock %}

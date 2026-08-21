@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}{{ report_title }}{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h4 class="mb-0"><i class="bi bi-file-earmark-bar-graph me-2"></i>{{ report_title }}</h4>
+        <div class="d-flex gap-2">
+            <a href="{% url 'supervisors:attendance_reports_export' supervisor.pk %}?fmt=csv&report_type={{ report_type }}{% if filters.student_id %}&student={{ filters.student_id }}{% endif %}{% if filters.date_from %}&date_from={{ filters.date_from }}{% endif %}{% if filters.date_to %}&date_to={{ filters.date_to }}{% endif %}{% if filters.status %}&status={{ filters.status }}{% endif %}" class="btn btn-sm btn-outline-secondary">CSV</a>
+            <a href="{% url 'supervisors:attendance_reports_export' supervisor.pk %}?fmt=xlsx&report_type={{ report_type }}{% if filters.student_id %}&student={{ filters.student_id }}{% endif %}{% if filters.date_from %}&date_from={{ filters.date_from }}{% endif %}{% if filters.date_to %}&date_to={{ filters.date_to }}{% endif %}{% if filters.status %}&status={{ filters.status }}{% endif %}" class="btn btn-sm btn-outline-success">Excel</a>
+            <a href="{% url 'supervisors:attendance_reports_export' supervisor.pk %}?fmt=pdf&report_type={{ report_type }}{% if filters.student_id %}&student={{ filters.student_id }}{% endif %}{% if filters.date_from %}&date_from={{ filters.date_from }}{% endif %}{% if filters.date_to %}&date_to={{ filters.date_to }}{% endif %}{% if filters.status %}&status={{ filters.status }}{% endif %}" class="btn btn-sm btn-outline-danger">PDF</a>
+        </div>
+    </div>
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <select name="report_type" class="form-select">
+                {% for val, label in report_types.items %}
+                <option value="{{ val }}" {% if report_type == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="student" class="form-select">
+                <option value="">All Assigned Interns</option>
+                {% for s in students %}<option value="{{ s.pk }}" {% if filters.student_id == s.pk|stringformat:'s' %}selected{% endif %}>{{ s.full_name }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2"><input type="date" name="date_from" value="{{ filters.date_from }}" class="form-control"></div>
+        <div class="col-md-2"><input type="date" name="date_to" value="{{ filters.date_to }}" class="form-control"></div>
+        <div class="col-md-2">
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                {% for val, label in attendance_statuses %}<option value="{{ val }}" {% if filters.status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-12"><button class="btn btn-outline-primary">Generate Report</button></div>
+    </form>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle mb-0">
+                <thead>
+                    <tr>{% for col in columns %}<th>{{ col }}</th>{% endfor %}</tr>
+                </thead>
+                <tbody>
+                    {% for row in page %}
+                    <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+                    {% empty %}
+                    <tr><td colspan="{{ columns|length }}" class="text-center text-muted">No data found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="small text-muted">Page {{ page.number }} of {{ page.paginator.num_pages }} ({{ page.paginator.count }} records)</span>
+                {% if page.has_other_pages %}
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        {% if page.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page.previous_page_number }}&report_type={{ report_type }}">Prev</a></li>{% endif %}
+                        {% if page.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page.next_page_number }}&report_type={{ report_type }}">Next</a></li>{% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

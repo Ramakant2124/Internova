@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Give Feedback{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h5><i class="bi bi-chat-heart"></i> Feedback for {{ student.full_name }}</h5>
+                    <p class="form-subtitle">Share your evaluation and comments for this student</p>
+                </div>
+                <div class="form-card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {% include 'partials/form_field.html' %}
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Submit Feedback</button>
+                            <a href="{% url 'faculty:student_detail' student.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

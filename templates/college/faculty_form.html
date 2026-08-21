@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}{% if editing %}Edit Faculty{% else %}Add Faculty{% endif %}{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h5><i class="bi bi-person-workspace"></i> {% if editing %}Edit Faculty{% else %}Add New Faculty{% endif %}</h5>
+                    <p class="form-subtitle">{% if editing %}Update the faculty member's information{% else %}Create a new faculty mentor account{% endif %}</p>
+                </div>
+                <div class="form-card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {% with form_grid=True %}
+                        {% include 'partials/form_field.html' %}
+                        {% endwith %}
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">{% if editing %}<i class="bi bi-check-lg"></i> Save Changes{% else %}<i class="bi bi-plus-circle"></i> Create Faculty{% endif %}</button>
+                            <a href="{% url 'college:faculty' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

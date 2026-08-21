@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Internships{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h4 class="mb-0"><i class="bi bi-briefcase me-2"></i>Internships</h4>
+        <a href="{% url 'college:internship_add' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>Post Internship</a>
+    </div>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-4"><input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search by title"></div>
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                {% for val, label in internship_statuses %}<option value="{{ val }}" {% if status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="company" class="form-select">
+                <option value="">All Companies</option>
+                {% for c in companies %}<option value="{{ c.pk }}" {% if request.GET.company == c.pk|stringformat:'s' %}selected{% endif %}>{{ c.company_name }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2"><button class="btn btn-outline-primary w-100">Filter</button></div>
+    </form>
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead><tr><th>Title</th><th>Company</th><th>Type</th><th>Stipend</th><th>Status</th><th>Posted</th><th></th></tr></thead>
+                <tbody>
+                    {% for i in internships %}
+                    <tr>
+                        <td><a href="{% url 'college:internship_detail' i.pk %}" class="fw-bold">{{ i.title }}</a></td>
+                        <td>{{ i.company.company_name }}</td>
+                        <td>{{ i.get_internship_type_display }}</td>
+                        <td>{% if i.stipend %}₹{{ i.stipend }}{% else %}<span class="text-muted">Unpaid</span>{% endif %}</td>
+                        <td>{% include 'partials/status_badge.html' with status=i.status %}</td>
+                        <td class="small">{{ i.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="{% url 'college:internship_detail' i.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                            <a href="{% url 'college:internship_edit' i.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        </td>
+                    </tr>
+                    {% empty %}<tr><td colspan="7" class="text-center text-muted">No internships found.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+    </div>
+</div>
+{% endblock %}

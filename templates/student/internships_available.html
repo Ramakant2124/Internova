@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Available Internships{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h4 class="mb-0"><i class="bi bi-search me-2"></i>Available Internships</h4>
+        <form method="get" class="d-flex gap-2">
+            <input type="text" name="q" value="{{ keyword }}" class="form-control" placeholder="Search by title...">
+            <button type="submit" class="btn btn-outline-primary">Search</button>
+        </form>
+    </div>
+    <div class="row">
+        {% for internship in internships %}
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ internship.title }}</h5>
+                    <h6 class="text-muted"><i class="bi bi-building me-1"></i>{{ internship.company.company_name }}</h6>
+                    <div class="small text-muted mb-2">
+                        <span class="me-3"><i class="bi bi-geo-alt"></i> {{ internship.location|default:'Remote' }}</span>
+                        <span><i class="bi bi-clock"></i> {{ internship.duration|default:'N/A' }}</span>
+                    </div>
+                    {% if internship.stipend %}<span class="badge bg-success">₹{{ internship.stipend }}</span>{% endif %}
+                    <span class="badge bg-secondary">{{ internship.get_internship_type_display }}</span>
+                    <p class="card-text small mt-2">{{ internship.description|truncatechars:120 }}</p>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#apply-{{ internship.pk }}"><i class="bi bi-send me-1"></i>Apply</button>
+                    <div class="collapse mt-2" id="apply-{{ internship.pk }}">
+                        <form method="post" action="{% url 'students:internships_available' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="internship_id" value="{{ internship.pk }}">
+                            <textarea name="cover_letter" class="form-control form-control-sm mb-2" rows="2" placeholder="Cover letter / why you are a good fit (optional)"></textarea>
+                            <button type="submit" class="btn btn-sm btn-success w-100">Confirm Application</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12"><div class="alert alert-info">No internships available right now.</div></div>
+        {% endfor %}
+    </div>
+    {% include 'partials/pagination.html' %}
+</div>
+{% endblock %}

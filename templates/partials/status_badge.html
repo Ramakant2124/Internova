@@ -1,0 +1,2 @@
+{% load dashboard_extras %}
+<span class="badge rounded-pill bg-{{ status|badge_class }} text-white">{{ label|default:status|status_label }}</span>

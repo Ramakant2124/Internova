@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Company Dashboard{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h4 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Company Dashboard</h4>
+        <a href="{% url 'companies:internship_add' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>Post Internship</a>
+    </div>
+
+    <div class="row">
+        {% include 'partials/dashboard_card.html' with title='Internships Posted' value=opportunities icon='bi-briefcase' color='primary' %}
+        {% include 'partials/dashboard_card.html' with title='Allocated Students' value=allocated_students icon='bi-people' color='info' %}
+        {% include 'partials/dashboard_card.html' with title='Active Interns' value=active_interns icon='bi-person-check' color='success' %}
+        {% include 'partials/dashboard_card.html' with title='Pending Reviews' value=pending_reviews icon='bi-hourglass-split' color='warning' %}
+        {% include 'partials/dashboard_card.html' with title='Tasks to Review' value=pending_tasks icon='bi-list-check' color='secondary' %}
+        {% include 'partials/dashboard_card.html' with title='Active Allocations' value=completion_requests icon='bi-flag' color='danger' %}
+        {% include 'partials/dashboard_card.html' with title='Certificates Issued' value=certificates icon='bi-patch-check' color='success' %}
+    </div>
+
+    <div class="card shadow-sm border-0 mt-3">
+        <div class="card-header bg-white"><strong><i class="bi bi-bell me-2"></i>Recent Notifications</strong></div>
+        <ul class="list-group list-group-flush">
+            {% for n in recent_notifications %}
+            <li class="list-group-item">
+                <strong class="small">{{ n.title }}</strong>
+                <div class="text-muted small">{{ n.message|truncatechars:100 }}</div>
+            </li>
+            {% empty %}<li class="list-group-item text-muted">No notifications.</li>{% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

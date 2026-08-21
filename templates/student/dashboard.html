@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Student Dashboard{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+            <h4 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Student Dashboard</h4>
+            <small class="text-muted">Welcome, {{ student.full_name }}</small>
+        </div>
+        {% if internship %}
+        <span class="badge bg-{{ internship.status|badge_class }} fs-6">{{ internship.get_status_display }}</span>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        {% include 'partials/dashboard_card.html' with title='Internship Status' value=internship.get_status_display|default:'Not Allocated' icon='bi-briefcase' color='primary' %}
+        {% include 'partials/dashboard_card.html' with title='Attendance' value=attendance.percentage|floatformat:0|add:'%' icon='bi-calendar-check' color='success' %}
+        {% include 'partials/dashboard_card.html' with title='Pending Tasks' value=pending_tasks icon='bi-hourglass-split' color='warning' %}
+        {% include 'partials/dashboard_card.html' with title='Completed Tasks' value=completed_tasks icon='bi-check2-all' color='success' %}
+        {% include 'partials/dashboard_card.html' with title='Overall Progress' value=overall_progress|floatformat:0|add:'%' icon='bi-graph-up-arrow' color='info' %}
+        {% include 'partials/dashboard_card.html' with title='Certificate' value=certificate_status|status_label icon='bi-patch-check' color='danger' %}
+    </div>
+
+    {% if not internship %}
+    <div class="alert alert-info mt-3">
+        <i class="bi bi-info-circle me-2"></i>You are not yet allocated to an internship.
+        <a href="{% url 'students:internships_available' %}" class="alert-link">Browse available internships</a> and apply.
+    </div>
+    {% else %}
+    <div class="row mt-3">
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white"><strong><i class="bi bi-briefcase me-2"></i>Current Internship</strong></div>
+                <div class="card-body">
+                    <h6 class="fw-bold">{{ internship.title }}</h6>
+                    <p class="text-muted small">{{ internship.company.company_name }} &middot; {{ internship.location|default:'N/A' }}</p>
+                    <div class="small">
+                        <div><strong>Type:</strong> {{ internship.get_internship_type_display }}</div>
+                        <div><strong>Stipend:</strong> {% if internship.stipend %}₹{{ internship.stipend }}{% else %}Unpaid{% endif %}</div>
+                        <div><strong>Start:</strong> {{ internship.start_date|default:'-' }}</div>
+                        <div><strong>End:</strong> {{ internship.end_date|default:'-' }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white"><strong><i class="bi bi-graph-up me-2"></i>Overall Progress</strong></div>
+                <div class="card-body">
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-info" style="width: {{ overall_progress }}%">{{ overall_progress }}%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white"><strong><i class="bi bi-list-check me-2"></i>Recent Tasks</strong></div>
+                <ul class="list-group list-group-flush">
+                    {% for t in recent_tasks %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div>
+                            <a href="{% url 'students:task_detail' t.pk %}">{{ t.title }}</a>
+                            <div class="small text-muted">{{ t.get_status_display }}</div>
+                        </div>
+                        {% include 'partials/status_badge.html' with status=t.status %}
+                    </li>
+                    {% empty %}<li class="list-group-item text-muted">No tasks yet.</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white"><strong><i class="bi bi-bell me-2"></i>Recent Notifications</strong></div>
+                <ul class="list-group list-group-flush">
+                    {% for n in recent_notifications %}
+                    <li class="list-group-item">
+                        <strong class="small">{{ n.title }}</strong>
+                        <div class="text-muted small">{{ n.message|truncatechars:80 }}</div>
+                    </li>
+                    {% empty %}<li class="list-group-item text-muted">No notifications.</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

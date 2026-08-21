@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Feedback{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <h4 class="mb-3"><i class="bi bi-chat-heart me-2"></i>Feedback Given</h4>
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead><tr><th>Student</th><th>Internship</th><th>Rating</th><th>Comments</th><th>Date</th></tr></thead>
+                <tbody>
+                    {% for f in feedback %}
+                    <tr>
+                        <td><a href="{% url 'companies:student_detail' f.student.pk %}">{{ f.student.full_name }}</a></td>
+                        <td class="small">{{ f.internship.title|truncatechars:30 }}</td>
+                        <td>
+                            {% if f.rating %}
+                            {% for i in "12345" %}{% if forloop.counter <= f.rating %}★{% else %}☆{% endif %}{% endfor %}
+                            {% else %}<span class="text-muted">-</span>{% endif %}
+                        </td>
+                        <td class="small">{{ f.comments|default:'-' }}</td>
+                        <td class="small">{{ f.created_at|date:"M d, Y" }}</td>
+                    </tr>
+                    {% empty %}<tr><td colspan="5" class="text-center text-muted">No feedback given yet.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+    </div>
+</div>
+{% endblock %}

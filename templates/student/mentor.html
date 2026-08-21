@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Mentor{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <h4 class="mb-3"><i class="bi bi-person-workspace me-2"></i>Mentor / Faculty</h4>
+
+    {% if not allocation %}
+    <div class="alert alert-warning"><i class="bi bi-info-circle me-2"></i>You can choose a mentor once you are allocated to an internship.</div>
+    {% else %}
+    {% if assignment %}
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <span class="avatar-lg bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 fs-2">{{ assignment.faculty.full_name|first }}</span>
+                    <h5>{{ assignment.faculty.full_name }}</h5>
+                    <p class="text-muted">{{ assignment.faculty.designation|default:'Faculty Mentor' }}</p>
+                    <hr>
+                    <div class="text-start small">
+                        <div class="mb-2"><strong>Department:</strong> {{ assignment.faculty.department|default:'-' }}</div>
+                        <div class="mb-2"><strong>Specialization:</strong> {{ assignment.faculty.specialization|default:'-' }}</div>
+                        <div class="mb-2"><strong>Email:</strong> {{ assignment.faculty.email|default:'-' }}</div>
+                        <div class="mb-2"><strong>Phone:</strong> {{ assignment.faculty.phone|default:'-' }}</div>
+                        <div class="mb-2"><strong>Assigned On:</strong> {{ assignment.assigned_at|date:"M d, Y" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info"><i class="bi bi-info-circle me-2"></i>No faculty mentor has been assigned to you yet. Choose one below.</div>
+    {% endif %}
+
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white"><strong>Choose your Faculty Mentor</strong></div>
+                <div class="card-body">
+                    {% if faculty_list %}
+                    <form method="post" action="{% url 'students:mentor_select' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Faculty Mentor</label>
+                            <select name="faculty" class="form-select" required>
+                                <option value="">Select a faculty member...</option>
+                                {% for f in faculty_list %}
+                                <option value="{{ f.pk }}" {% if assignment.faculty.pk == f.pk %}selected{% endif %}>
+                                    {{ f.full_name }} — {{ f.department|default:'Faculty' }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">{% if assignment %}Change Mentor{% else %}Select Mentor{% endif %}</button>
+                    </form>
+                    {% else %}
+                    <p class="text-muted mb-0">No faculty members are available at your college right now.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

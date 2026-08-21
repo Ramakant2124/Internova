@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us - Internova{% endblock %}
+
+{% block auth_content %}
+
+<style>
+
+    .about-page {
+        min-height: 100vh;
+        margin: 12px;
+
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        border-radius: 18px;
+
+        background: linear-gradient(
+            to bottom,
+            #eaf0f2,
+            #6f42c1,
+            #eaf0f2
+        );
+
+        color: white;
+
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.20);
+    }
+
+    /* ABOUT SECTION */
+
+    .about-section {
+        text-align: center;
+        max-width: 1200px;
+        margin: auto;
+        padding: 30px 20px 50px;
+    }
+
+    .about-section h1 {
+        font-size: 42px;
+        font-weight: 700;
+        margin-bottom: 25px;
+    }
+
+    .about-section p {
+        font-size: 18px;
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.92);
+        margin-bottom: 15px;
+    }
+
+
+    /* FOUNDERS */
+
+    .founders-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 25px;
+        align-items: start;
+    }
+
+    .founder-card {
+        width: 100%;
+        text-align: center;
+
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        padding: 15px;
+
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+
+        transition: all 0.3s ease;
+    }
+
+    .founder-card img {
+        width: 100%;
+        height: 350px;
+        object-fit: cover;
+        border-radius: 15px;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+
+
+    /* FOUNDER */
+
+    .founder-card {
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 25px;
+        padding: 20px;
+
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+
+        transition: all 0.3s ease;
+    }
+
+
+    .founder-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    }
+
+
+    .founder-card img {
+        width: 100%;
+        height: 450px;
+
+        object-fit: cover;
+
+        border-radius: 20px;
+
+        border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+
+
+    .founder-name {
+        margin-top: 20px;
+        margin-bottom: 5px;
+
+        font-size: 20px;
+        color: white;
+    }
+
+
+    .founder-name strong {
+        color: #9900ff;
+    }
+
+
+    .founder-role {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+
+    /* FOOTER */
+
+    .about-footer {
+        text-align: center;
+        padding: 20px;
+        margin-top: 20px;
+
+        background: rgba(0, 0, 0, 0.35);
+
+        border-radius: 15px 15px 0 0;
+    }
+
+
+    /* MOBILE */
+
+    @media (max-width: 768px) {
+
+        .about-page {
+            padding: 20px 15px 0;
+        }
+
+        .about-section h1 {
+            font-size: 32px;
+        }
+
+        .about-section p {
+            font-size: 16px;
+        }
+
+        .founders-grid {
+            grid-template-columns: 1fr;
+            gap: 35px;
+        }
+
+        .founder-card img {
+            height: 400px;
+        }
+
+    }
+
+</style>
+
+
+<div class="about-page">
+
+
+    <!-- ABOUT US -->
+
+    <section class="about-section">
+
+        <h1 style="color:yellow;">About Us</h1>
+
+        <p style="color:black;">
+            Internova is an Internship &amp; Placement Hub designed to
+            connect students, colleges, faculty mentors, and companies
+            on a single platform.
+        </p>
+
+        <p style="color:black;">
+            Our platform simplifies the complete internship lifecycle by
+            providing tools for internship management, attendance tracking,
+            task management, student progress monitoring, performance
+            evaluation, and certificate management.
+        </p>
+
+        <p style="color:black;">
+            Internova aims to create a transparent and efficient ecosystem
+            where students can build their professional skills, mentors can
+            guide and evaluate students, colleges can manage placement
+            activities, and companies can collaborate with talented students.
+        </p>
+
+    </section>
+
+
+    <!-- FOUNDERS -->
+
+    <section class="founders-section">
+
+        <h2 style="text-align:center; color:yellow;">Our Founders</h2>
+        <br>
+
+
+        <div class="founders-grid">
+
+
+            <!-- FOUNDER 1 -->
+
+            <div class="founder-card">
+
+                <img
+                    src="{% static 'images/rama.jpeg' %}"
+                    alt="Ramakant Chaudhari"
+                >
+
+              <p class="founder-name">
+    <strong>Ramakant Chaudhari</strong>
+    <span class="founder-role" style="color: #070601;">
+        : <b>FOUNDER</b>
+    </span>
+</p>
+
+
+            </div>
+
+
+            <!-- FOUNDER 2 -->
+
+            <div class="founder-card">
+
+                <img
+                    src="{% static 'images/ritesh.png' %}"
+                    alt="Ritesh Chaudhari"
+                >
+
+                <p class="founder-name">
+                    <strong>Ritesh Chaudhari</strong>
+                    <span class="founder-role" style="color:#070601;">
+                        : <b>FOUNDER</b>
+                    </span>
+                </p>
+
+            </div>
+
+
+            <!-- FOUNDER 3 -->
+
+            <div class="founder-card">
+
+                <img
+                    src="{% static 'images/revu.png' %}"
+                    alt="Revati Pagare"
+                >
+
+                <p class="founder-name">
+                    <strong>Revati Pagare</strong>
+                    <span class="founder-role" style="color:#070601;">
+                        : <b>CO-FOUNDER</b>
+                    </span>
+                </p>
+
+            </div>
+
+
+            <!-- FOUNDER 4 -->
+
+            <div class="founder-card">
+
+                <img
+                    src="{% static 'images/vishu.png' %}"
+                    alt="Vishakha Kharche"
+                >
+
+                <p class="founder-name">
+                    <strong>Vishakha Kharche</strong>
+                    <span class="founder-role" style="color:#070601;">
+                        : <b>CO-FOUNDER</b>
+                    </span>
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- FOOTER -->
+
+    <footer class="about-footer">
+    <p class="mb-0">
+        &copy; {% now "Y" %} Internova. Developed by - 404 Not Found
+    </p>
+</footer>
+
+<style>
+.about-footer {
+    background: linear-gradient(to right, #f4f2f6, #8a2be2, #f1f4f5);
+    color: white;
+    padding: 15px 0;
+    text-align: center;
+}
+</style>
+
+
+
+</div>
+
+{% endblock %}

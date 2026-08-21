@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}My Internship{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <h4 class="mb-3"><i class="bi bi-briefcase me-2"></i>My Internship</h4>
+    {% if not internship %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>You are not yet allocated to an internship.
+        <a href="{% url 'students:internships_available' %}" class="alert-link">Browse available internships</a>.
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <strong>{{ internship.title }}</strong>
+                    {% include 'partials/status_badge.html' with status=internship.status %}
+                </div>
+                <div class="card-body">
+                    <p>{{ internship.description|default:'No description provided.' }}</p>
+                    <div class="row small">
+                        <div class="col-md-4 mb-2"><strong>Company:</strong> {{ internship.company.company_name }}</div>
+                        <div class="col-md-4 mb-2"><strong>Location:</strong> {{ internship.location|default:'-' }}</div>
+                        <div class="col-md-4 mb-2"><strong>Type:</strong> {{ internship.get_internship_type_display }}</div>
+                        <div class="col-md-4 mb-2"><strong>Stipend:</strong> {% if internship.stipend %}₹{{ internship.stipend }}{% else %}Unpaid{% endif %}</div>
+                        <div class="col-md-4 mb-2"><strong>Duration:</strong> {{ internship.duration|default:'-' }}</div>
+                        <div class="col-md-4 mb-2"><strong>Start Date:</strong> {{ internship.start_date|default:'-' }}</div>
+                        <div class="col-md-4 mb-2"><strong>End Date:</strong> {{ internship.end_date|default:'-' }}</div>
+                        <div class="col-md-4 mb-2"><strong>Allocation Date:</strong> {{ allocation.allocation_date|default:'-' }}</div>
+                        <div class="col-md-4 mb-2"><strong>Allocation Status:</strong> {{ allocation.get_status_display|default:'-' }}</div>
+                    </div>
+                    {% if internship.skills_required %}
+                    <div class="mt-3">
+                        <strong>Skills Required:</strong><br>
+                        {{ internship.skills_required|linebreaksbr }}
+                    </div>
+                    {% endif %}
+                    {% if application %}
+                    <hr>
+                    <div class="small">
+                        <strong>Application:</strong> {{ application.get_status_display }}
+                        {% if application.cover_letter %}<div class="text-muted mt-2">"{{ application.cover_letter }}"</div>{% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white"><strong><i class="bi bi-clock-history me-2"></i>Status History</strong></div>
+                <ul class="list-group list-group-flush">
+                    {% for h in history %}
+                    <li class="list-group-item small">
+                        {% include 'partials/status_badge.html' with status=h.new_status %}
+                        <div class="text-muted mt-1">{{ h.created_at|date:"M d, Y" }} {% if h.reason %}&middot; {{ h.reason }}{% endif %}</div>
+                    </li>
+                    {% empty %}<li class="list-group-item text-muted">No status changes yet.</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

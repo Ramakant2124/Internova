@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}My Certificate{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <h4 class="mb-3"><i class="bi bi-patch-check me-2"></i>Internship Certificate</h4>
+    {% if not internship %}
+    <div class="alert alert-info">You are not allocated to an internship.</div>
+    {% elif not certificate %}
+    <div class="card shadow-sm border-0">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-file-earmark-x display-3 text-muted"></i>
+            <p class="mt-3 text-muted">No certificate uploaded yet for your current internship.</p>
+            <form method="post" action="{% url 'students:certificate_upload' %}" enctype="multipart/form-data" class="d-inline-block">
+                {% csrf_token %}
+                <div class="input-group input-group-sm mb-2" style="max-width: 360px;">
+                    <input type="file" name="certificate_file" class="form-control" accept=".pdf,.png,.jpg,.jpeg" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-upload me-1"></i>Upload Certificate</button>
+            </form>
+            <div class="text-muted small mt-2">Allowed: PDF, PNG, JPG (max 5 MB)</div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <strong>Certificate Details</strong>
+                    {% include 'partials/status_badge.html' with status=certificate.verification_status %}
+                </div>
+                <div class="card-body small">
+                    <div class="mb-2"><strong>Certificate Number:</strong> {{ certificate.certificate_number }}</div>
+                    <div class="mb-2"><strong>Company:</strong> {{ certificate.company.company_name }}</div>
+                    <div class="mb-2"><strong>Internship:</strong> {{ certificate.internship.title }}</div>
+                    <div class="mb-2"><strong>Start Date:</strong> {{ certificate.start_date|default:'-' }}</div>
+                    <div class="mb-2"><strong>End Date:</strong> {{ certificate.end_date|default:'-' }}</div>
+                    <div class="mb-2"><strong>Issue Date:</strong> {{ certificate.issue_date|default:'-' }}</div>
+                    {% if certificate.verification_comments %}
+                    <div class="mb-2"><strong>Verification Comments:</strong> {{ certificate.verification_comments }}</div>
+                    {% endif %}
+                    {% if certificate.certificate_file %}
+                    <a href="{{ certificate.certificate_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye me-1"></i>View Certificate</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% if certificate.verification_status == 'UPLOADED' or certificate.verification_status == 'REJECTED' %}
+            <form method="post" action="{% url 'students:certificate_request_verification' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-patch-check me-1"></i>Submit for Verification</button>
+            </form>
+            {% endif %}
+        </div>
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white"><strong>Verification</strong></div>
+                <div class="card-body">
+                    <p>Verify your certificate publicly at:
+                        <a href="{% url 'certificates:verify_detail' certificate.certificate_number %}">
+                            /certificates/verify/{{ certificate.certificate_number }}/
+                        </a>
+                    </p>
+                    <p class="text-muted small">You can share this link to prove the authenticity of your internship certificate.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

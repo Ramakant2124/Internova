@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}{{ student.full_name }}{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h4 class="mb-0">{{ student.full_name }}</h4>
+        <div class="d-flex gap-2">
+            <a href="{% url 'supervisors:attendance_mark' supervisor.pk %}" class="btn btn-sm btn-outline-success"><i class="bi bi-calendar-check me-1"></i>Mark Attendance</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white"><strong>Details</strong></div>
+                <div class="card-body small">
+                    <div class="mb-2"><strong>Student ID:</strong> {{ student.student_id }}</div>
+                    <div class="mb-2"><strong>Email:</strong> {{ student.email }}</div>
+                    <div class="mb-2"><strong>Department:</strong> {{ student.department|default:'-' }}</div>
+                    {% if internship %}
+                    <hr>
+                    <div class="mb-2"><strong>Internship:</strong> {{ internship.title }}</div>
+                    <div class="mb-2"><strong>Company:</strong> {{ internship.company.company_name }}</div>
+                    {% include 'partials/status_badge.html' with status=internship.status %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="row">
+                {% include 'partials/dashboard_card.html' with title='Attendance' value=attendance.percentage|floatformat:1|add:'%' icon='bi-calendar-check' color='primary' %}
+                {% include 'partials/dashboard_card.html' with title='Pending Tasks' value=pending_tasks icon='bi-hourglass-split' color='warning' %}
+                {% include 'partials/dashboard_card.html' with title='Avg Weekly Progress' value=weekly_avg|floatformat:1|add:'%' icon='bi-graph-up' color='success' %}
+            </div>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white"><strong>Recent Tasks</strong></div>
+                <ul class="list-group list-group-flush">
+                    {% for t in tasks %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ t.title }}</strong>
+                            <div class="small text-muted">{% include 'partials/status_badge.html' with status=t.status %} {{ t.progress_percentage }}% complete</div>
+                        </div>
+                        <span class="small text-muted">Due {{ t.due_date|default:'-' }}</span>
+                    </li>
+                    {% empty %}<li class="list-group-item text-muted">No tasks yet.</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}{{ task.title }}{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ task.title }}</h5>
+                    {% if task.is_overdue %}<span class="badge bg-danger">Overdue</span>{% endif %}
+                </div>
+                <div class="card-body">
+                    <p>{{ task.description|default:'No description.' }}</p>
+                    <div class="row small">
+                        <div class="col-md-4 mb-2"><strong>Priority:</strong> {% include 'partials/status_badge.html' with status=task.priority %}</div>
+                        <div class="col-md-4 mb-2"><strong>Status:</strong> {% include 'partials/status_badge.html' with status=task.status %}</div>
+                        <div class="col-md-4 mb-2"><strong>Progress:</strong> {{ task.progress_percentage }}%</div>
+                        <div class="col-md-4 mb-2"><strong>Assigned By:</strong> {{ task.assigned_by.display_name|default:'-' }}</div>
+                        <div class="col-md-4 mb-2"><strong>Due Date:</strong> {{ task.due_date|default:'-' }}</div>
+                        <div class="col-md-4 mb-2"><strong>Start Date:</strong> {{ task.start_date|default:'-' }}</div>
+                    </div>
+                    <div class="progress mt-3" style="height: 18px;">
+                        <div class="progress-bar bg-success" style="width: {{ task.progress_percentage }}%">{{ task.progress_percentage }}%</div>
+                    </div>
+                    {% if task.student_comments %}
+                    <hr><strong>My Comments:</strong><p class="small">{{ task.student_comments|linebreaksbr }}</p>
+                    {% endif %}
+                    {% if task.attachment %}<a href="{{ task.attachment.url }}" class="btn btn-sm btn-outline-secondary" target="_blank"><i class="bi bi-paperclip me-1"></i>Attachment</a>{% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white"><strong>Update Progress</strong></div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        {% include 'partials/form_field.html' %}
+                        <button type="submit" class="btn btn-primary">Save &amp; Submit</button>
+                        <a href="{% url 'students:tasks' %}" class="btn btn-outline-secondary">Back</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

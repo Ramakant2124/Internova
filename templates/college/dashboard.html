@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}College Dashboard{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>College Dashboard</h4>
+        <a href="{% url 'reports:home' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-bar-graph me-1"></i>View Reports</a>
+    </div>
+
+    <div class="row">
+        {% include 'partials/dashboard_card.html' with title='Total Students' value=total_students icon='bi-people' color='primary' %}
+        {% include 'partials/dashboard_card.html' with title='Companies' value=total_companies icon='bi-building' color='danger' %}
+        {% include 'partials/dashboard_card.html' with title='Active Internships' value=active_internships icon='bi-briefcase' color='info' %}
+        {% include 'partials/dashboard_card.html' with title='Currently Interning' value=currently_interning icon='bi-person-check' color='success' %}
+        {% include 'partials/dashboard_card.html' with title='Pending Approvals' value=pending_approvals icon='bi-check2-square' color='warning' %}
+        {% include 'partials/dashboard_card.html' with title='Pending Certificates' value=pending_certificates icon='bi-patch-check' color='secondary' %}
+        {% include 'partials/dashboard_card.html' with title='Completed Internships' value=completed_internships icon='bi-flag' color='success' %}
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white"><strong><i class="bi bi-inbox me-2"></i>Recent Applications</strong></div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead><tr><th>Student</th><th>Internship</th><th>Company</th><th>Status</th></tr></thead>
+                        <tbody>
+                            {% for a in recent_applications %}
+                            <tr>
+                                <td><a href="{% url 'college:student_detail' a.student.pk %}">{{ a.student.full_name }}</a></td>
+                                <td>{{ a.internship.title }}</td>
+                                <td class="small">{{ a.internship.company.company_name }}</td>
+                                <td>{% include 'partials/status_badge.html' with status=a.status %}</td>
+                            </tr>
+                            {% empty %}<tr><td colspan="4" class="text-center text-muted">No applications yet.</td></tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white"><strong><i class="bi bi-exclamation-triangle me-2"></i>Irregular Students</strong></div>
+                <ul class="list-group list-group-flush">
+                    {% for s in irregular %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <a href="{% url 'college:student_detail' s.student.pk %}">{{ s.student.full_name }}</a>
+                        <span class="badge bg-danger">{{ s.attendance_percentage|floatformat:1 }}%</span>
+                    </li>
+                    {% empty %}<li class="list-group-item text-muted">No irregular students.</li>{% endfor %}
+                </ul>
+            </div>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white"><strong><i class="bi bi-bell me-2"></i>Recent Notifications</strong></div>
+                <ul class="list-group list-group-flush">
+                    {% for n in recent_notifications %}
+                    <li class="list-group-item">
+                        <strong class="small">{{ n.title }}</strong>
+                        <div class="text-muted small">{{ n.message|truncatechars:80 }}</div>
+                    </li>
+                    {% empty %}<li class="list-group-item text-muted">No notifications.</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Companies{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h4 class="mb-0"><i class="bi bi-building me-2"></i>Companies</h4>
+        <a href="{% url 'college:company_add' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>Add Company</a>
+    </div>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-6"><input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search name, code or industry"></div>
+        <div class="col-md-3"><button class="btn btn-outline-primary">Search</button></div>
+    </form>
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead><tr><th>Company</th><th>Code</th><th>Industry</th><th>City</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                    {% for c in companies %}
+                    <tr>
+                        <td><strong>{{ c.company_name }}</strong></td>
+                        <td>{{ c.company_code }}</td>
+                        <td>{{ c.industry|default:'-' }}</td>
+                        <td>{{ c.city|default:'-' }}</td>
+                        <td>
+                            {% if c.user.is_active %}<span class="badge bg-success">Active</span>
+                            {% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'college:company_edit' c.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            <form method="post" action="{% url 'college:company_toggle_active' c.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-{% if c.user.is_active %}danger{% else %}success{% endif %}">
+                                    {{ c.user.is_active|yesno:'Deactivate,Activate' }}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}<tr><td colspan="6" class="text-center text-muted">No companies found.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+    </div>
+</div>
+{% endblock %}

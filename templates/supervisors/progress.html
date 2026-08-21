@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Intern Progress{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <h4 class="mb-3"><i class="bi bi-clipboard-data me-2"></i>Intern Progress</h4>
+    <ul class="nav nav-pills mb-3">
+        <li class="nav-item">
+            <a class="nav-link {% if kind != 'weekly' %}active{% endif %}" href="?kind=work">Daily Work Logs</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if kind == 'weekly' %}active{% endif %}" href="?kind=weekly">Weekly Progress</a>
+        </li>
+    </ul>
+    <form method="get" class="row g-2 mb-3">
+        <input type="hidden" name="kind" value="{{ kind }}">
+        <div class="col-md-3">
+            <select name="student" class="form-select">
+                <option value="">All Assigned Interns</option>
+                {% for s in students %}<option value="{{ s.pk }}" {% if request.GET.student == s.pk|stringformat:'s' %}selected{% endif %}>{{ s.full_name }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                {% for val, label in review_statuses %}<option value="{{ val }}" {% if status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2"><button class="btn btn-outline-primary">Filter</button></div>
+    </form>
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Student</th><th>Internship</th>
+                        {% if kind == 'weekly' %}<th>Week</th><th>Progress</th>{% else %}<th>Date</th><th>Hours</th>{% endif %}
+                        <th>Status</th><th>Review Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in page %}
+                    <tr>
+                        <td><a href="{% url 'supervisors:student_detail' supervisor.pk item.student.pk %}">{{ item.student.full_name }}</a></td>
+                        <td class="small">{{ item.internship.title|truncatechars:30 }}</td>
+                        {% if kind == 'weekly' %}
+                        <td class="small">{{ item.week_start }} to {{ item.week_end }}</td>
+                        <td>{{ item.progress_percentage }}%</td>
+                        {% else %}
+                        <td>{{ item.date }}</td>
+                        <td>{{ item.hours_worked }}</td>
+                        {% endif %}
+                        <td>{% include 'partials/status_badge.html' with status=item.status %}</td>
+                        <td class="small text-muted">{{ item.review_comments|default:'-' }}</td>
+                    </tr>
+                    {% empty %}<tr><td colspan="6" class="text-center text-muted">No submissions found.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+    </div>
+</div>
+{% endblock %}

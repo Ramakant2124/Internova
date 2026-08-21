@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}{{ student.full_name }}{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h4 class="mb-0">{{ student.full_name }}</h4>
+        <div>
+            {% if student.user.is_active %}<span class="badge bg-success">Active</span>
+            {% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}
+            <a href="{% url 'college:student_edit' student.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white"><strong>Details</strong></div>
+                <div class="card-body small">
+                    <div class="mb-2"><strong>Student ID:</strong> {{ student.student_id }}</div>
+                    <div class="mb-2"><strong>Email:</strong> {{ student.email }}</div>
+                    <div class="mb-2"><strong>Phone:</strong> {{ student.phone|default:'-' }}</div>
+                    <div class="mb-2"><strong>Department:</strong> {{ student.department|default:'-' }}</div>
+                    <div class="mb-2"><strong>Year:</strong> {{ student.year|default:'-' }}</div>
+                    <div class="mb-2"><strong>Course:</strong> {{ student.course|default:'-' }}</div>
+                </div>
+            </div>
+            {% if allocation %}
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white"><strong>Current Internship</strong></div>
+                <div class="card-body small">
+                    <strong>{{ allocation.internship.title }}</strong>
+                    <div class="text-muted">{{ allocation.internship.company.company_name }}</div>
+                    {% include 'partials/status_badge.html' with status=allocation.internship.status %}
+                </div>
+            </div>
+            {% endif %}
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white"><strong>Mentors</strong></div>
+                <ul class="list-group list-group-flush">
+                    {% for a in assignments %}
+                    <li class="list-group-item small">
+                        <strong>{{ a.faculty.full_name }}</strong>
+                        <div class="text-muted">{{ a.internship.title }}</div>
+                    </li>
+                    {% empty %}<li class="list-group-item text-muted">No faculty assigned.</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="row">
+                {% include 'partials/dashboard_card.html' with title='Attendance' value=attendance.percentage|floatformat:1|add:'%' icon='bi-calendar-check' color='primary' %}
+                {% include 'partials/dashboard_card.html' with title='Pending Tasks' value=pending_tasks icon='bi-hourglass-split' color='warning' %}
+                {% include 'partials/dashboard_card.html' with title='Overdue Tasks' value=overdue_tasks icon='bi-exclamation-circle' color='danger' %}
+                {% include 'partials/dashboard_card.html' with title='Avg Weekly Progress' value=weekly_avg|floatformat:1|add:'%' icon='bi-graph-up' color='success' %}
+            </div>
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white"><strong>Certificate</strong></div>
+                <div class="card-body">
+                    {% if certificate %}
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><strong>{{ certificate.certificate_number }}</strong>
+                        <span class="ms-2">{% include 'partials/status_badge.html' with status=certificate.verification_status %}</span></span>
+                        <small class="text-muted">{{ certificate.company.company_name }}</small>
+                    </div>
+                    {% else %}<p class="text-muted mb-0">No certificate uploaded.</p>{% endif %}
+                </div>
+            </div>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white"><strong>Set Password</strong></div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'college:student_set_password' student.pk %}" class="row g-2 align-items-end">
+                        {% csrf_token %}
+                        {% include 'partials/form_field.html' with form=password_form %}
+                        <div class="col-auto"><button type="submit" class="btn btn-warning btn-sm">Update Password</button></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

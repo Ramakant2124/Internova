@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}Internova{% endblock %}
+
+{% block auth_content %}
+
+<style>
+    .auth-cover {
+        min-height: 100vh;
+        padding: 0 20px 40px;
+        background: linear-gradient(to bottom, #eaf0f2, #6f42c1, #eaf0f2);
+    }
+
+    /* TOP NAVIGATION */
+    .top-nav {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        padding: 25px 40px 0;
+        box-sizing: border-box;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 30px;
+    }
+
+    .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-size: 17px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .nav-links a:hover {
+        color: #fff200;
+        transform: translateY(-2px);
+    }
+
+    .auth-hero {
+        color: white;
+        text-align: center;
+        padding: 35px 20px 40px;
+    }
+
+    .auth-hero h1 {
+        font-weight: 700;
+    }
+
+    /* ONLY THE 4 BOXES */
+    .portal-card {
+        background: rgba(255, 255, 255, 0.15) !important;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        border-radius: 20px !important;
+
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+
+        transition: all 0.3s ease;
+    }
+
+    .portal-card:hover {
+        transform: translateY(-8px);
+        background: rgba(255, 255, 255, 0.22) !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    .portal-card h5 {
+        color: white;
+        font-weight: 700;
+    }
+
+    .portal-card p {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+
+    .portal-icon {
+        font-size: 3rem;
+    }
+</style>
+
+<div class="auth-cover">
+
+    <!-- TOP NAVIGATION -->
+    <nav class="top-nav">
+        <div class="nav-links">
+            <a href="{% url 'accounts:about' %}" class="btn btn-primary">
+                About Us
+            </a>
+        </div>
+    </nav>
+
+
+    <!-- HERO SECTION -->
+    <div class="auth-hero text-center text-white">
+
+        <h1 class="display-5 fw-bold">
+            <i class="bi bi-mortarboard-fill"
+               style="color: #fff200;"></i>
+            Internova
+        </h1>
+
+        <p class="lead mb-4">
+            Internova — Internship &amp; Placement Hub —
+            connect students, mentors, and organizations while
+            tracking attendance and student progress, all in one place.
+        </p>
+
+    </div>
+
+
+    <!-- PORTAL CARDS -->
+    <div class="container">
+
+        <div class="row g-4 justify-content-center pb-5">
+
+            <!-- Student -->
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'accounts:student_login' %}"
+                   class="card portal-card text-center text-decoration-none h-100">
+
+                    <div class="card-body">
+                        <i class="bi bi-person-circle portal-icon text-primary"></i>
+
+                        <h5 class="mt-3">Student</h5>
+
+                        <p class="small">
+                            Manage your internship, attendance, tasks,
+                            progress, and certificates — all in one place.
+                        </p>
+
+                        <span class="btn btn-primary btn-sm">
+                            Student Login
+                        </span>
+                    </div>
+
+                </a>
+            </div>
+
+
+            <!-- College -->
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'accounts:college_login' %}"
+                   class="card portal-card text-center text-decoration-none h-100">
+
+                    <div class="card-body">
+                        <i class="bi bi-bank portal-icon text-success"></i>
+
+                        <h5 class="mt-3">College T & P</h5>
+
+                        <p class="small">
+                            Centralized training &amp; placement management
+                            with approvals and smart analytics.
+                        </p>
+
+                        <span class="btn btn-success btn-sm">
+                            College Login
+                        </span>
+                    </div>
+
+                </a>
+            </div>
+
+
+            <!-- Faculty -->
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'accounts:faculty_login' %}"
+                   class="card portal-card text-center text-decoration-none h-100">
+
+                    <div class="card-body">
+                        <i class="bi bi-person-workspace portal-icon text-warning"></i>
+
+                        <h5 class="mt-3">Faculty / Mentor</h5>
+
+                        <p class="small">
+                            Monitor assigned students, review their work,
+                            and assess their performance.
+                        </p>
+
+                        <span class="btn btn-warning btn-sm">
+                            Faculty Login
+                        </span>
+                    </div>
+
+                </a>
+            </div>
+
+
+            <!-- Company -->
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'accounts:company_login' %}"
+                   class="card portal-card text-center text-decoration-none h-100">
+
+                    <div class="card-body">
+                        <i class="bi bi-building portal-icon text-danger"></i>
+
+                        <h5 class="mt-3">Company</h5>
+
+                        <p class="small">
+                            Publish internships, assign responsibilities,
+                            and manage certificates.
+                        </p>
+
+                        <span class="btn btn-danger btn-sm">
+                            Company Login
+                        </span>
+                    </div>
+
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

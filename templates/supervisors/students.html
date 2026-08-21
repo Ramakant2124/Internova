@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Assigned Interns{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <h4 class="mb-3"><i class="bi bi-people me-2"></i>My Assigned Interns</h4>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-4">
+            <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search by name">
+        </div>
+        <div class="col-md-2"><button class="btn btn-outline-primary">Search</button></div>
+    </form>
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead><tr><th>Name</th><th>Student ID</th><th>Department</th><th>Internship</th><th></th></tr></thead>
+                <tbody>
+                    {% for s in students %}
+                    <tr>
+                        <td><a href="{% url 'supervisors:student_detail' supervisor.pk s.pk %}">{{ s.full_name }}</a></td>
+                        <td>{{ s.student_id }}</td>
+                        <td>{{ s.department|default:'-' }}</td>
+                        <td class="small">
+                            {% for a in s.supervisor_assignments.all %}
+                                {% if a.active %}{{ a.internship.title }}{% endif %}
+                            {% empty %}-{% endfor %}
+                        </td>
+                        <td><a href="{% url 'supervisors:student_detail' supervisor.pk s.pk %}" class="btn btn-sm btn-outline-primary">View</a></td>
+                    </tr>
+                    {% empty %}<tr><td colspan="5" class="text-center text-muted">No interns assigned yet.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Daily Work Logs{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <h4 class="mb-3"><i class="bi bi-journal-text me-2"></i>Daily Work Logs Review</h4>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                {% for val, label in review_statuses %}<option value="{{ val }}" {% if status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2"><button class="btn btn-outline-primary">Filter</button></div>
+    </form>
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead><tr><th>Student</th><th>Internship</th><th>Date</th><th>Work Description</th><th>Hours</th><th>Status</th><th>Review</th></tr></thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td><a href="{% url 'faculty:student_detail' log.student.pk %}">{{ log.student.full_name }}</a></td>
+                        <td class="small">{{ log.internship.title|truncatechars:25 }}</td>
+                        <td>{{ log.date }}</td>
+                        <td class="small">{{ log.work_description|truncatechars:60 }}</td>
+                        <td>{{ log.hours_worked }}</td>
+                        <td>{% include 'partials/status_badge.html' with status=log.status %}</td>
+                        <td style="min-width: 250px;">
+                            {% if log.status == 'PENDING' %}
+                            <form method="post" action="{% url 'faculty:work_log_review' log.pk %}" class="d-flex gap-1">
+                                {% csrf_token %}
+                                <button type="submit" name="decision" value="APPROVED" class="btn btn-sm btn-success">Approve</button>
+                                <input type="text" name="comments" class="form-control form-control-sm" placeholder="Comments">
+                                <button type="submit" name="decision" value="REJECTED" class="btn btn-sm btn-outline-danger">Reject</button>
+                            </form>
+                            {% else %}<span class="text-muted small">{{ log.review_comments|default:'Reviewed' }}</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}<tr><td colspan="7" class="text-center text-muted">No work logs found.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% load dashboard_extras %}
+<div class="col-md-6 col-xl-3 mb-3">
+    <div class="card dashboard-card shadow-sm border-0">
+        <div class="card-body d-flex align-items-center">
+            <div class="dashboard-icon bg-{{ color|default:'primary' }} text-white me-3">
+                <i class="bi {{ icon|default:'bi-graph-up' }}"></i>
+            </div>
+            <div class="flex-grow-1">
+                <div class="dashboard-value fs-4 fw-bold">{{ value }}</div>
+                <div class="text-muted small">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+</div>

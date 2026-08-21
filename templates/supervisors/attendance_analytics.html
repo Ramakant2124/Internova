@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Attendance Analytics{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h4 class="mb-0"><i class="bi bi-graph-up me-2"></i>Attendance Analytics</h4>
+        <span class="badge bg-primary">{{ supervisor.name }}</span>
+    </div>
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <select name="student" class="form-select">
+                <option value="">All Assigned Interns</option>
+                {% for s in students %}<option value="{{ s.pk }}" {% if filters.student_id == s.pk|stringformat:'s' %}selected{% endif %}>{{ s.full_name }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2"><input type="date" name="date_from" value="{{ filters.date_from }}" class="form-control"></div>
+        <div class="col-md-2"><input type="date" name="date_to" value="{{ filters.date_to }}" class="form-control"></div>
+        <div class="col-md-2"><button class="btn btn-outline-primary">Filter</button></div>
+        <div class="col-md-3"><a href="{% url 'supervisors:attendance_analytics' supervisor.pk %}" class="btn btn-outline-secondary">Reset</a></div>
+    </form>
+
+    <div class="row">
+        {% include 'partials/dashboard_card.html' with title='Working Days' value=totals.total_working_days icon='bi-calendar3' color='primary' %}
+        {% include 'partials/dashboard_card.html' with title='Present' value=totals.present icon='bi-check-circle' color='success' %}
+        {% include 'partials/dashboard_card.html' with title='Half Day' value=totals.half icon='bi-circle-half' color='info' %}
+        {% include 'partials/dashboard_card.html' with title='Leave' value=totals.leave icon='bi-box-arrow-in-right' color='warning' %}
+        {% include 'partials/dashboard_card.html' with title='Absent' value=totals.absent icon='bi-x-circle' color='danger' %}
+        {% include 'partials/dashboard_card.html' with title='Late' value=totals.late icon='bi-clock' color='secondary' %}
+        {% include 'partials/dashboard_card.html' with title='Attendance %' value=totals.percentage|floatformat:1|add:'%' icon='bi-percent' color='dark' %}
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white"><strong>Daily Trend</strong></div>
+                <div class="card-body">
+                    <canvas id="dailyChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white"><strong>Weekly / Monthly Trend</strong></div>
+                <div class="card-body">
+                    <ul class="nav nav-pills mb-2">
+                        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" data-bs-target="#weeklyChartPane" href="#">Weekly</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" data-bs-target="#monthlyChartPane" href="#">Monthly</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="weeklyChartPane"><canvas id="weeklyChart" height="190"></canvas></div>
+                        <div class="tab-pane fade" id="monthlyChartPane"><canvas id="monthlyChart" height="190"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white"><strong>Intern Comparison (Attendance %)</strong></div>
+                <div class="card-body">
+                    <canvas id="comparisonChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white"><strong>Attendance Insights</strong></div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="fw-bold small">Trending:</span>
+                        <span class="badge bg-success">Improving {{ trends.improving }}</span>
+                        <span class="badge bg-warning text-dark">Stable {{ trends.stable }}</span>
+                        <span class="badge bg-danger">Declining {{ trends.declining }}</span>
+                    </div>
+                    {% if low %}
+                    <p class="small fw-bold text-danger mb-1">Low Attendance (below {{ threshold }}%)</p>
+                    <ul class="list-unstyled small">
+                        {% for r in low %}
+                        <li><i class="bi bi-exclamation-triangle me-1 text-danger"></i>{{ r.student.full_name }} — {{ r.percentage }}%</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% if absences %}
+                    <p class="small fw-bold text-warning mb-1">Consistent Absence Streaks</p>
+                    <ul class="list-unstyled small">
+                        {% for a in absences %}
+                        <li><i class="bi bi-calendar-x me-1 text-warning"></i>{{ a.student.full_name }} — {{ a.streak }} consecutive days</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% if not low and not absences %}
+                    <p class="text-muted small mb-0">No interns flagged for low attendance or absence streaks.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mt-3">
+        <div class="card-header bg-white"><strong>Per-Intern Statistics</strong></div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Intern</th><th>Working Days</th><th>Present</th><th>Half</th><th>Leave</th><th>Absent</th><th>Late</th><th>Attendance %</th><th>Flag</th></tr></thead>
+                <tbody>
+                    {% for r in intern_stats %}
+                    <tr>
+                        <td>{{ r.student.full_name }}</td>
+                        <td>{{ r.total_working_days }}</td>
+                        <td>{{ r.present }}</td>
+                        <td>{{ r.half }}</td>
+                        <td>{{ r.leave }}</td>
+                        <td>{{ r.absent }}</td>
+                        <td>{{ r.late }}</td>
+                        <td>{{ r.percentage }}%</td>
+                        <td>{% if r.irregular %}<span class="badge bg-danger">Low</span>{% else %}<span class="badge bg-success">OK</span>{% endif %}</td>
+                    </tr>
+                    {% empty %}<tr><td colspan="9" class="text-center text-muted">No data.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const dailyCtx = document.getElementById('dailyChart');
+const dailyLabels = [{% for d in daily %}'{{ d.date }}',{% endfor %}];
+const dailyData = {
+    present: [{% for d in daily %}{{ d.present }},{% endfor %}],
+    half: [{% for d in daily %}{{ d.half }},{% endfor %}],
+    leave: [{% for d in daily %}{{ d.leave }},{% endfor %}],
+    absent: [{% for d in daily %}{{ d.absent }},{% endfor %}],
+};
+if (dailyCtx) new Chart(dailyCtx, {
+    type: 'bar',
+    data: {
+        labels: dailyLabels,
+        datasets: [
+            { label: 'Present', data: dailyData.present, backgroundColor: '#198754' },
+            { label: 'Half', data: dailyData.half, backgroundColor: '#0dcaf0' },
+            { label: 'Leave', data: dailyData.leave, backgroundColor: '#ffc107' },
+            { label: 'Absent', data: dailyData.absent, backgroundColor: '#dc3545' },
+        ],
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true } } },
+});
+
+const weeklyCtx = document.getElementById('weeklyChart');
+const weeklyLabels = [{% for d in weekly %}'{{ d.date__year }}-W{{ d.date__week }}',{% endfor %}];
+if (weeklyCtx) new Chart(weeklyCtx, {
+    type: 'line',
+    data: {
+        labels: weeklyLabels,
+        datasets: [
+            { label: 'Present', data: [{% for d in weekly %}{{ d.present }},{% endfor %}], borderColor: '#198754', tension: 0.3 },
+            { label: 'Absent', data: [{% for d in weekly %}{{ d.absent }},{% endfor %}], borderColor: '#dc3545', tension: 0.3 },
+        ],
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } },
+});
+
+const monthlyCtx = document.getElementById('monthlyChart');
+const monthlyLabels = [{% for d in monthly %}'{{ d.date__month }}/{{ d.date__year }}',{% endfor %}];
+if (monthlyCtx) new Chart(monthlyCtx, {
+    type: 'line',
+    data: {
+        labels: monthlyLabels,
+        datasets: [
+            { label: 'Present', data: [{% for d in monthly %}{{ d.present }},{% endfor %}], borderColor: '#198754', tension: 0.3 },
+            { label: 'Absent', data: [{% for d in monthly %}{{ d.absent }},{% endfor %}], borderColor: '#dc3545', tension: 0.3 },
+        ],
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } },
+});
+
+const comparisonCtx = document.getElementById('comparisonChart');
+const comparisonLabels = [{% for c in comparison %}'{{ c.label }}',{% endfor %}];
+if (comparisonCtx) new Chart(comparisonCtx, {
+    type: 'bar',
+    data: {
+        labels: comparisonLabels,
+        datasets: [{ label: 'Attendance %', data: [{% for c in comparison %}{{ c.percentage }},{% endfor %}], backgroundColor: '#0d6efd' }],
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { max: 100 } } },
+});
+</script>
+{% endblock %}

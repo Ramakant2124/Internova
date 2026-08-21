@@ -1,0 +1,100 @@
+{% load dashboard_extras %}
+<aside class="app-sidebar" id="appSidebar">
+    <div class="sidebar-brand">
+        <i class="bi bi-mortarboard-fill me-2"></i>Internova
+    </div>
+    <nav class="sidebar-nav">
+        {% if user.role == 'STUDENT' %}
+        <a href="{% url 'students:dashboard' %}" class="sidebar-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="{% url 'students:profile' %}" class="sidebar-link"><i class="bi bi-person"></i> My Profile</a>
+        <a href="{% url 'students:internship' %}" class="sidebar-link"><i class="bi bi-briefcase"></i> My Internship</a>
+        <a href="{% url 'students:company' %}" class="sidebar-link"><i class="bi bi-building"></i> Company</a>
+        <a href="{% url 'students:internships_available' %}" class="sidebar-link"><i class="bi bi-search"></i> Available Internships</a>
+        <a href="{% url 'students:attendance' %}" class="sidebar-link"><i class="bi bi-calendar-check"></i> Attendance</a>
+        <a href="{% url 'students:work_logs' %}" class="sidebar-link"><i class="bi bi-journal-text"></i> Daily Work Logs</a>
+        <a href="{% url 'students:weekly_progress' %}" class="sidebar-link"><i class="bi bi-clipboard-data"></i> Weekly Progress</a>
+        <a href="{% url 'students:tasks' %}" class="sidebar-link"><i class="bi bi-list-check"></i> Tasks</a>
+        <a href="{% url 'students:documents' %}" class="sidebar-link"><i class="bi bi-folder2-open"></i> Documents</a>
+        <a href="{% url 'students:certificate' %}" class="sidebar-link"><i class="bi bi-patch-check"></i> Certificate</a>
+        <a href="{% url 'students:feedback' %}" class="sidebar-link"><i class="bi bi-chat-heart"></i> Feedback</a>
+
+        {% elif user.role == 'COLLEGE' %}
+        <a href="{% url 'college:dashboard' %}" class="sidebar-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="{% url 'college:students' %}" class="sidebar-link"><i class="bi bi-people"></i> Students</a>
+        <a href="{% url 'college:companies' %}" class="sidebar-link"><i class="bi bi-building"></i> Companies</a>
+        <a href="{% url 'college:internships' %}" class="sidebar-link"><i class="bi bi-briefcase"></i> Internships</a>
+        <a href="{% url 'college:applications' %}" class="sidebar-link"><i class="bi bi-inbox"></i> Applications</a>
+        <a href="{% url 'college:allocations' %}" class="sidebar-link"><i class="bi bi-person-check"></i> Allocations</a>
+        <a href="{% url 'college:faculty' %}" class="sidebar-link"><i class="bi bi-person-workspace"></i> Faculty / Mentors</a>
+        <a href="{% url 'college:attendance' %}" class="sidebar-link"><i class="bi bi-calendar-check"></i> Attendance</a>
+        <a href="{% url 'college:progress' %}" class="sidebar-link"><i class="bi bi-clipboard-data"></i> Progress Monitoring</a>
+        <a href="{% url 'college:approvals' %}" class="sidebar-link"><i class="bi bi-check2-square"></i> Approvals</a>
+        <a href="{% url 'college:certificates' %}" class="sidebar-link"><i class="bi bi-patch-check"></i> Certificates</a>
+        <a href="{% url 'reports:home' %}" class="sidebar-link"><i class="bi bi-file-earmark-bar-graph"></i> Reports</a>
+        <a href="{% url 'reports:analytics' %}" class="sidebar-link"><i class="bi bi-graph-up"></i> Analytics</a>
+
+        {% elif user.role == 'FACULTY' %}
+        <a href="{% url 'faculty:dashboard' %}" class="sidebar-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="{% url 'faculty:students' %}" class="sidebar-link"><i class="bi bi-people"></i> Assigned Students</a>
+        <a href="{% url 'faculty:attendance' %}" class="sidebar-link"><i class="bi bi-calendar-check"></i> Attendance</a>
+        <a href="{% url 'faculty:work_logs' %}" class="sidebar-link"><i class="bi bi-journal-text"></i> Daily Work Logs</a>
+        <a href="{% url 'faculty:weekly_progress' %}" class="sidebar-link"><i class="bi bi-clipboard-data"></i> Weekly Progress</a>
+        <a href="{% url 'faculty:tasks' %}" class="sidebar-link"><i class="bi bi-list-check"></i> Tasks</a>
+        <a href="{% url 'faculty:evaluations' %}" class="sidebar-link"><i class="bi bi-star"></i> Evaluations</a>
+        <a href="{% url 'faculty:feedback' %}" class="sidebar-link"><i class="bi bi-chat-heart"></i> Feedback</a>
+        <a href="{% url 'faculty:certificates' %}" class="sidebar-link"><i class="bi bi-patch-check"></i> Certificates</a>
+        <a href="{% url 'reports:home' %}" class="sidebar-link"><i class="bi bi-file-earmark-bar-graph"></i> Reports</a>
+        <a href="{% url 'reports:analytics' %}" class="sidebar-link"><i class="bi bi-graph-up"></i> Analytics</a>
+
+        {% elif user.role == 'COMPANY' %}
+        <a href="{% url 'companies:dashboard' %}" class="sidebar-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="{% url 'companies:profile' %}" class="sidebar-link"><i class="bi bi-building-gear"></i> Company Profile</a>
+        <a href="{% url 'companies:internships' %}" class="sidebar-link"><i class="bi bi-briefcase"></i> Internships</a>
+        <a href="{% url 'companies:students' %}" class="sidebar-link"><i class="bi bi-people"></i> Allocated Students</a>
+        <a href="{% url 'companies:tasks' %}" class="sidebar-link"><i class="bi bi-list-check"></i> Tasks</a>
+        <a href="{% url 'companies:progress' %}" class="sidebar-link"><i class="bi bi-clipboard-data"></i> Progress</a>
+        <a href="{% url 'companies:supervisors' %}" class="sidebar-link"><i class="bi bi-person-vcard"></i> Supervisors</a>
+        <a href="{% url 'companies:attendance' %}" class="sidebar-link"><i class="bi bi-calendar-check"></i> Intern Attendance</a>
+        <a href="{% url 'companies:feedback' %}" class="sidebar-link"><i class="bi bi-chat-heart"></i> Feedback</a>
+        <a href="{% url 'companies:completion' %}" class="sidebar-link"><i class="bi bi-flag"></i> Completion</a>
+        <a href="{% url 'companies:certificates' %}" class="sidebar-link"><i class="bi bi-patch-check"></i> Certificates</a>
+        <a href="{% url 'reports:home' %}" class="sidebar-link"><i class="bi bi-file-earmark-bar-graph"></i> Reports</a>
+        {% if active_supervisor %}
+        <div class="sidebar-section-label">Supervisor View: {{ active_supervisor.name }}</div>
+        <a href="{% url 'supervisors:dashboard' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-speedometer2"></i> Supervisor Dashboard</a>
+        <a href="{% url 'supervisors:students' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-people"></i> Assigned Interns</a>
+        <a href="{% url 'supervisors:attendance' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-calendar-check"></i> Attendance</a>
+        <a href="{% url 'supervisors:attendance_mark' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-pencil-square"></i> Mark Attendance</a>
+        <a href="{% url 'supervisors:attendance_analytics' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-graph-up"></i> Analytics</a>
+        <a href="{% url 'supervisors:attendance_reports' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-file-earmark-bar-graph"></i> Attendance Reports</a>
+        <a href="{% url 'supervisors:tasks' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-list-check"></i> Tasks</a>
+        <a href="{% url 'supervisors:progress' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-clipboard-data"></i> Intern Progress</a>
+        <form method="post" action="{% url 'companies:attendance_exit' %}">
+            {% csrf_token %}
+            <button type="submit" class="sidebar-link sidebar-button w-100 text-start"><i class="bi bi-box-arrow-left"></i> Exit Supervisor View</button>
+        </form>
+        {% endif %}
+
+        {% elif user.role == 'SUPERVISOR' %}
+        <a href="{% url 'supervisors:dashboard' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="{% url 'supervisors:students' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-people"></i> Assigned Interns</a>
+        <a href="{% url 'supervisors:attendance' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-calendar-check"></i> Attendance</a>
+        <a href="{% url 'supervisors:attendance_mark' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-pencil-square"></i> Mark Attendance</a>
+        <a href="{% url 'supervisors:attendance_analytics' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-graph-up"></i> Analytics</a>
+        <a href="{% url 'supervisors:attendance_reports' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-file-earmark-bar-graph"></i> Attendance Reports</a>
+        <a href="{% url 'supervisors:tasks' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-list-check"></i> Tasks</a>
+        <a href="{% url 'supervisors:progress' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-clipboard-data"></i> Intern Progress</a>
+        <a href="{% url 'supervisors:notifications' active_supervisor.pk %}" class="sidebar-link"><i class="bi bi-bell"></i> Notifications</a>
+        {% endif %}
+
+        <a href="{% url 'notifications:list' %}" class="sidebar-link"><i class="bi bi-bell"></i> Notifications
+            {% if unread_count %}<span class="badge bg-danger rounded-pill">{{ unread_count }}</span>{% endif %}</a>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="{% url 'accounts:password_change' %}" class="sidebar-link"><i class="bi bi-shield-lock"></i> Change Password</a>
+        <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="sidebar-link sidebar-button w-100 text-start"><i class="bi bi-box-arrow-right"></i> Logout</button>
+        </form>
+    </div>
+</aside>

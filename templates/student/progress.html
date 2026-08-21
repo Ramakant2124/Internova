@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load dashboard_extras %}
+{% block title %}Weekly Progress{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 mt-4">
+    <h4 class="mb-3"><i class="bi bi-clipboard-data me-2"></i>Weekly Progress Reports</h4>
+    {% if form %}
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white"><strong>Submit Weekly Progress</strong></div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                {% include 'partials/form_field.html' %}
+                <button type="submit" class="btn btn-primary"><i class="bi bi-send me-1"></i>Submit</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">You are not allocated to an internship.</div>
+    {% endif %}
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white"><strong>My Reports</strong></div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead><tr><th>Week</th><th>Summary</th><th>Progress</th><th>Status</th><th>Review</th><th></th></tr></thead>
+                <tbody>
+                    {% for r in reports %}
+                    <tr>
+                        <td>{{ r.week_start }} to {{ r.week_end }}</td>
+                        <td class="small">{{ r.summary|default:'-'|truncatechars:70 }}</td>
+                        <td>
+                            <div class="progress" style="height: 12px; min-width: 90px;">
+                                <div class="progress-bar bg-info" style="width: {{ r.progress_percentage }}%">{{ r.progress_percentage }}%</div>
+                            </div>
+                        </td>
+                        <td>{% include 'partials/status_badge.html' with status=r.status %}</td>
+                        <td class="small">{{ r.review_comments|default:'-' }}</td>
+                        <td>
+                            {% if r.status == 'PENDING' %}
+                            <a href="{% url 'students:weekly_progress_edit' r.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            {% endif %}
+                            {% if r.attachment %}<a href="{{ r.attachment.url }}" class="btn btn-sm btn-outline-secondary" target="_blank">File</a>{% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}<tr><td colspan="6" class="text-center text-muted">No reports yet.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+    </div>
+</div>
+{% endblock %}

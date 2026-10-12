@@ -34,7 +34,10 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env_bool("DEBUG", True)
 
-ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1")
+ALLOWED_HOSTS = env_list(
+    "ALLOWED_HOSTS",
+    "localhost,127.0.0.1,internova-21.vercel.app,internova-21-git-main-ramakant2124s-projects.vercel.app,internova-21-jpxdpvu5j-ramakant2124s-projects.vercel.app"
+)
 
 # --------------------------------------------------------------------------
 # Applications

@@ -156,6 +156,10 @@ def student_detail(request, pk):
             "evaluations": evaluations,
             "feedback": feedback,
             "certificate": certificate,
+            "has_progress_data": weekly.exists(),
+            "has_worklog_data": DailyWorkLog.objects.filter(
+                student=student, **({"internship": internship} if internship else {})
+            ).exists(),
         },
     )
 

@@ -212,6 +212,9 @@ def student_detail(request, pk):
             Certificate.objects.filter(student=student, internship=allocation.internship).first()
         )
     password_form = StudentPasswordForm()
+    export_scope = {"student": student}
+    if allocation:
+        export_scope["internship"] = allocation.internship
     return render(
         request,
         "college/student_detail.html",
@@ -225,6 +228,8 @@ def student_detail(request, pk):
             "assignments": assignments,
             "certificate": certificate,
             "password_form": password_form,
+            "has_progress_data": WeeklyProgress.objects.filter(**export_scope).exists(),
+            "has_worklog_data": DailyWorkLog.objects.filter(**export_scope).exists(),
         },
     )
 

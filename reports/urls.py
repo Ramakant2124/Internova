@@ -9,6 +9,11 @@ urlpatterns = [
     path("", views.reports_home, name="home"),
     path("analytics/", views.analytics, name="analytics"),
     path("analytics/data/", views.analytics_data, name="analytics_data"),
+    path(
+        "students/<int:pk>/export/<str:fmt>/",
+        views.student_report_export,
+        name="student_report_export",
+    ),
     path("<str:report_type>/", views.report_view, name="report_detail"),
     path("<str:report_type>/export/<str:fmt>/", views.report_export, name="report_export"),
 ]

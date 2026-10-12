@@ -1,0 +1,123 @@
+{% comment %}
+Reusable "Export Report" dropdown for a specific student's detail page.
+Expects: student, and optionally has_progress_data / has_worklog_data.
+Exports only this student's weekly progress + daily worklogs via the
+role-scoped reports endpoint. Downloads through fetch() so we can show
+generating/success/error states and block repeated clicks; falls back to a
+normal link navigation when JavaScript is unavailable.
+{% endcomment %}
+<div class="position-relative d-inline-block">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle js-export-toggle"
+                id="studentExportMenu{{ student.pk }}" data-bs-toggle="dropdown"
+                data-bs-auto-close="true" aria-expanded="false"
+                {% if not has_progress_data and not has_worklog_data %}disabled title="No weekly progress or daily worklog records to export."{% endif %}>
+            <i class="bi bi-download me-1"></i>Export Report
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="studentExportMenu{{ student.pk }}">
+            <li><h6 class="dropdown-header">Weekly Progress &amp; Daily Worklogs</h6></li>
+            <li><a class="dropdown-item js-export-link" href="{% url 'reports:student_report_export' student.pk 'pdf' %}">
+                <i class="bi bi-file-earmark-pdf text-danger me-2"></i>PDF (.pdf)</a></li>
+            <li><a class="dropdown-item js-export-link" href="{% url 'reports:student_report_export' student.pk 'xlsx' %}">
+                <i class="bi bi-file-earmark-excel text-success me-2"></i>Excel (.xlsx)</a></li>
+            <li><a class="dropdown-item js-export-link" href="{% url 'reports:student_report_export' student.pk 'csv' %}">
+                <i class="bi bi-filetype-csv text-primary me-2"></i>CSV (.csv)</a></li>
+        </ul>
+    </div>
+    {% if not has_progress_data and not has_worklog_data %}
+    <span class="text-muted small ms-1">No report data available for this student.</span>
+    {% endif %}
+</div>
+<script>
+(function () {
+    var LABEL = '<i class="bi bi-download me-1"></i>Export Report';
+
+    function setStatus(toggle, html, cls) {
+        toggle.innerHTML = html;
+        toggle.classList.remove('btn-outline-secondary', 'btn-success', 'btn-danger');
+        if (cls) toggle.classList.add(cls);
+    }
+
+    function reset(toggle) {
+        setStatus(toggle, LABEL, 'btn-outline-secondary');
+        toggle.disabled = toggle.dataset.initiallyDisabled === '1';
+        toggle.dataset.busy = '';
+        document.querySelectorAll('.js-export-link').forEach(function (l) {
+            l.classList.remove('disabled', 'pe-none');
+        });
+    }
+
+    function readFilename(disposition, fallbackExt) {
+        if (disposition) {
+            var match = /filename="([^"]+)"/.exec(disposition);
+            if (match) return match[1];
+        }
+        return 'Student_Internship_Report.' + fallbackExt;
+    }
+
+    function downloadBlob(blob, filename) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    }
+
+    function bind() {
+        document.querySelectorAll('.js-export-toggle').forEach(function (toggle) {
+            toggle.dataset.initiallyDisabled = toggle.disabled ? '1' : '0';
+        });
+        document.querySelectorAll('.js-export-link:not([data-export-bound])').forEach(function (link) {
+            link.setAttribute('data-export-bound', '1');
+            link.addEventListener('click', function (event) {
+                var toggle = document.querySelector('.js-export-toggle');
+                if (!toggle || toggle.disabled || toggle.dataset.busy === '1') {
+                    event.preventDefault();
+                    return;
+                }
+                event.preventDefault();
+                toggle.dataset.busy = '1';
+                toggle.disabled = true;
+                setStatus(toggle, '<span class="spinner-border spinner-border-sm me-1"></span>Generating report...', null);
+                document.querySelectorAll('.js-export-link').forEach(function (l) {
+                    l.classList.add('disabled', 'pe-none');
+                });
+
+                var DEFAULT_ERROR = 'Unable to generate report. Please try again.';
+                var ext = (new URL(link.href).pathname.split('/').filter(Boolean).pop() || 'csv');
+                fetch(link.href, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin'
+                }).then(function (response) {
+                    var disposition = response.headers.get('Content-Disposition');
+                    if (!response.ok || !disposition) {
+                        return response.json().catch(function () { return {}; }).then(function (payload) {
+                            var error = new Error(payload.error || DEFAULT_ERROR);
+                            error.userMessage = payload.error || DEFAULT_ERROR;
+                            throw error;
+                        });
+                    }
+                    return response.blob().then(function (blob) {
+                        downloadBlob(blob, readFilename(disposition, ext));
+                        setStatus(toggle, '<i class="bi bi-check-circle me-1"></i>Report downloaded successfully.', 'btn-success');
+                    });
+                }).catch(function (err) {
+                    var message = (err && err.userMessage) ? err.userMessage : DEFAULT_ERROR;
+                    setStatus(toggle, '<i class="bi bi-x-circle me-1"></i>' + message, 'btn-danger');
+                }).finally(function () {
+                    setTimeout(function () { reset(toggle); }, 3500);
+                });
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bind);
+    } else {
+        bind();
+    }
+})();
+</script>

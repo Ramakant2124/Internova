@@ -1,36 +1,95 @@
 {% extends 'base.html' %}
 {% load dashboard_extras %}
+{% load static %}
 
 {% block title %}
     {{ portal_name|default:'Login' }}
 {% endblock %}
 
 {% block auth_content %}
+
 <style>
+    /* ==============================
+       LOGIN PAGE BACKGROUND
+       ============================== */
+
     .login-page {
         min-height: 100vh;
         padding: 30px 15px;
+
+        background:
+            linear-gradient(
+                rgba(30, 15, 60, 0.55),
+                rgba(30, 15, 60, 0.55)
+            ),
+            url("{% static 'images/123.jpg' %}");
+
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+
+        box-sizing: border-box;
     }
+
+
+    /* ==============================
+       LOGIN CARD
+       ============================== */
 
     .login-page .auth-card {
         width: 100%;
         max-width: 450px;
         border-radius: 18px;
         overflow: hidden;
-        background: #ffffff;
-        border: 1px solid #e8e5f1;
-        box-shadow: 0 4px 24px rgba(111, 66, 193, 0.08), 0 10px 40px rgba(0, 0, 0, 0.08);
+
+        background: rgba(255, 255, 255, 0.28);
+
+        border: 1px solid rgba(255, 255, 255, 0.7);
+
+        box-shadow:
+            0 4px 24px rgba(111, 66, 193, 0.15),
+            0 10px 40px rgba(0, 0, 0, 0.20);
+
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
     }
+
+
+    /* ==============================
+       CARD BODY
+       ============================== */
 
     .login-page .auth-card .card-body {
         padding: 40px;
     }
 
+
+    /* ==============================
+       LOGIN ICON
+       ============================== */
+
     .login-page .login-icon {
         font-size: 60px;
         color: #6f42c1;
-        filter: drop-shadow(0 2px 8px rgba(111, 66, 193, 0.3));
+
+        filter:
+            drop-shadow(
+                0 2px 8px
+                rgba(111, 66, 193, 0.3)
+            );
+
+        transition: transform 0.3s ease;
     }
+
+    .login-page .login-icon:hover {
+        transform: scale(1.08);
+    }
+
+
+    /* ==============================
+       LOGIN TITLE
+       ============================== */
 
     .login-page .login-title {
         font-size: 24px;
@@ -39,92 +98,160 @@
         font-weight: 700;
     }
 
+
     .login-page .login-subtitle {
         color: #7c7c9a;
         margin-bottom: 25px;
         font-size: 0.9rem;
     }
 
+
+    /* ==============================
+       FORM INPUTS
+       ============================== */
+
     .login-page .form-control {
         border-radius: 10px;
         min-height: 48px;
         padding: 10px 14px;
+
         border: 1.5px solid #ddd8ed;
+
         background: #fdfcff;
-        transition: border-color 0.22s ease, box-shadow 0.22s ease;
+
+        transition:
+            border-color 0.22s ease,
+            box-shadow 0.22s ease,
+            background 0.22s ease;
     }
+
 
     .login-page .form-control:hover {
         border-color: #b8a8e0;
     }
 
+
     .login-page .form-control:focus {
         border-color: #6f42c1;
-        box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.13);
+
+        box-shadow:
+            0 0 0 3px
+            rgba(111, 66, 193, 0.13);
+
         background: #ffffff;
     }
 
+
+    /* ==============================
+       LOGIN BUTTON
+       ============================== */
+
     .login-page .btn-login {
         position: relative;
+
         min-height: 52px;
+
         border-radius: 12px;
         border: none;
+
         color: #fff;
+
         font-weight: 600;
         font-size: 1rem;
-        background: linear-gradient(135deg, #6f42c1 0%, #7c4dff 50%, #6f42c1 100%);
+
+        background:
+            linear-gradient(
+                135deg,
+                #6f42c1 0%,
+                #7c4dff 50%,
+                #6f42c1 100%
+            );
+
         background-size: 200% 200%;
-        box-shadow: 0 4px 16px rgba(111, 66, 193, 0.3);
+
+        box-shadow:
+            0 4px 16px
+            rgba(111, 66, 193, 0.3);
+
         transition: all 0.3s ease;
     }
 
+
     .login-page .btn-login:hover {
         transform: translateY(-2px);
+
         background-position: 100% 0;
-        box-shadow: 0 8px 24px rgba(111, 66, 193, 0.4);
+
+        box-shadow:
+            0 8px 24px
+            rgba(111, 66, 193, 0.4);
     }
+
 
     .login-page .btn-login:active {
         transform: translateY(0);
     }
 
+
+    /* ==============================
+       LINKS
+       ============================== */
+
     .login-page a {
         text-decoration: none;
     }
 
+
     .login-page .forgot-password {
         font-size: 14px;
     }
+
 
     .login-page .forgot-password a {
         color: #6f42c1;
         transition: color 0.2s;
     }
 
+
     .login-page .forgot-password a:hover {
         color: #5a35a0;
     }
+
 
     .login-page .portal-link {
         font-size: 13px;
     }
 
+
     .login-page .portal-link a {
         color: #6f42c1;
     }
 
+
     .login-page .portal-link a:hover {
         color: #5a35a0;
     }
+
+
+    /* ==============================
+       DIVIDER
+       ============================== */
 
     .login-page hr {
         margin: 25px 0 18px;
         border-color: #ece9f5;
     }
 
+
+    /* ==============================
+       MOBILE
+       ============================== */
+
     @media (max-width: 576px) {
+
         .login-page {
             padding: 20px 12px;
+            background-attachment: scroll;
         }
 
         .login-page .auth-card .card-body {
@@ -141,44 +268,95 @@
     }
 </style>
 
-<div class="container d-flex justify-content-center align-items-center login-page">
+
+<!-- ==============================
+     LOGIN PAGE
+     ============================== -->
+
+<div class="container-fluid d-flex justify-content-center align-items-center login-page">
+
     <div class="card auth-card">
+
         <div class="card-body">
+
+            <!-- LOGIN HEADER -->
+
             <div class="text-center mb-4">
+
                 <i class="bi bi-mortarboard-fill login-icon"></i>
+
                 <h4 class="fw-bold login-title">
                     {{ portal_name|default:'Portal Login' }}
                 </h4>
+
                 <p class="login-subtitle">
                     Sign in to continue
                 </p>
+
             </div>
+
+
+            <!-- LOGIN FORM -->
 
             <form method="post" novalidate>
+
                 {% csrf_token %}
+
                 {% include 'partials/form_field.html' %}
+
                 <div class="d-grid mt-3">
-                    <button type="submit" class="btn btn-primary btn-lg btn-login">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-lg btn-login">
+
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
                         Login
+
                     </button>
+
                 </div>
+
             </form>
 
+
+            <!-- FORGOT PASSWORD -->
+
             <div class="text-center mt-3 forgot-password">
+
                 <a href="{% url 'accounts:password_reset' %}">
+
+                    <i class="bi bi-key me-1"></i>
                     Forgot password?
+
                 </a>
+
             </div>
+
+
+            <!-- DIVIDER -->
 
             <hr>
 
+
+            <!-- PORTAL LINK -->
+
             <div class="text-center small text-muted portal-link">
+
                 Wrong portal?
+
                 <a href="{% url 'accounts:home' %}">
+
                     Choose your portal
+
                 </a>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
+
 {% endblock %}

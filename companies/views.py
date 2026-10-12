@@ -285,6 +285,16 @@ def student_detail(request, pk):
             "supervisor_form": SupervisorAssignForm(company=company),
             "certificate": certificate,
             "feedback": feedback,
+            "has_progress_data": (
+                WeeklyProgress.objects.filter(
+                    student=student, **({"internship": internship} if internship else {})
+                ).exists()
+            ),
+            "has_worklog_data": (
+                DailyWorkLog.objects.filter(
+                    student=student, **({"internship": internship} if internship else {})
+                ).exists()
+            ),
         },
     )
 

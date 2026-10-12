@@ -292,12 +292,15 @@ def attendance_report_export(request, supervisor):
         writer.writerows(rows)
         return response
     if fmt == "xlsx":
+        import re
+
         from openpyxl import Workbook
         from openpyxl.styles import Font
 
         wb = Workbook()
         ws = wb.active
-        ws.title = title[:30]
+        # Excel sheet titles cannot contain [ ] : * ? / \
+        ws.title = re.sub(r"[\[\]:*?/\\]", "-", title)[:31] or "Report"
         ws.append(columns)
         for cell in ws[1]:
             cell.font = Font(bold=True)

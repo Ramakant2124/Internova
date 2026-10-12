@@ -9,6 +9,7 @@
             {% if student.user.is_active %}<span class="badge bg-success">Active</span>
             {% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}
             <a href="{% url 'college:student_edit' student.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+            {% include 'partials/student_export_button.html' %}
         </div>
     </div>
     <div class="row">

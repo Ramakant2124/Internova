@@ -1,11 +1,12 @@
 """Analytics endpoints and report views with CSV/Excel/PDF exports."""
 import csv
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Count, Avg, Q
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.http import Http404, HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from accounts.decorators import (
@@ -472,3 +473,82 @@ def report_export(request, report_type, fmt):
     elements.append(table)
     doc.build(elements)
     return response
+
+
+# ---------------------------------------------------------------------------
+# Per-student report export (College / Faculty / Company dashboards)
+# ---------------------------------------------------------------------------
+@login_required
+def student_report_export(request, pk, fmt):
+    """Export one student's weekly progress + daily worklogs in the given
+    format. The student is resolved through the requester's role scope, so a
+    user can never export another user's student by changing the id."""
+    from django.core.exceptions import PermissionDenied
+
+    from reports.student_export import (
+        RENDERERS,
+        build_student_report,
+        report_has_data,
+    )
+
+    user = request.user
+    if fmt not in RENDERERS:
+        raise Http404
+
+    if user.role == "COLLEGE":
+        student = get_object_or_404(
+            StudentProfile.objects.select_related("user", "college"),
+            pk=pk,
+            college=user.college_profile,
+        )
+        allocation = (
+            student.allocations.filter(status="ACTIVE")
+            .select_related("internship", "internship__company")
+            .first()
+        )
+        internship = allocation.internship if allocation else None
+        detail_url = "college:student_detail"
+    elif user.role == "FACULTY":
+        assignment = (
+            FacultyAssignment.objects.filter(
+                faculty=user.faculty_profile, student_id=pk, active=True
+            )
+            .select_related("student", "internship", "internship__company")
+            .first()
+        )
+        if assignment is None:
+            raise PermissionDenied
+        student = assignment.student
+        internship = assignment.internship
+        detail_url = "faculty:student_detail"
+    elif user.role == "COMPANY":
+        allocation = (
+            InternshipAllocation.objects.filter(
+                internship__company=user.company_profile,
+                student_id=pk,
+                status="ACTIVE",
+            )
+            .select_related("student", "internship", "internship__company")
+            .first()
+        )
+        if allocation is None:
+            raise PermissionDenied
+        student = allocation.student
+        internship = allocation.internship
+        detail_url = "companies:student_detail"
+    else:
+        raise PermissionDenied
+
+    report = build_student_report(student, internship)
+    if not report_has_data(report):
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse(
+                {"error": "No report data available for this student."}, status=409
+            )
+        messages.warning(
+            request,
+            f"No weekly progress or daily worklog records found for "
+            f"{student.full_name}; there is nothing to export yet.",
+        )
+        return redirect(detail_url, pk=student.pk)
+    return RENDERERS[fmt](report)
